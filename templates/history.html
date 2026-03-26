@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block title %}Scan History — VulnGuard{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto py-12 px-6">
+  <h1 class="text-3xl font-bold mb-8">Scan History</h1>
+
+  <!-- Filter & Sort Bar -->
+  <div class="flex gap-4 mb-6">
+    <input 
+      id="filter-url" 
+      type="text" 
+      placeholder="Filter by URL…"
+      class="flex-1 px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-100 placeholder-gray-500 focus:outline-none focus:border-green-500"
+    >
+    <button id="sort-date" class="px-4 py-2 bg-gray-800 hover:bg-gray-700 rounded-lg transition">
+      Date ↓
+    </button>
+    <button id="sort-score" class="px-4 py-2 bg-gray-800 hover:bg-gray-700 rounded-lg transition">
+      Score ↓
+    </button>
+  </div>
+
+  <!-- History Table -->
+  <div class="overflow-x-auto bg-gray-900 rounded-lg">
+    <table id="history-table" class="w-full text-sm">
+      <thead class="bg-gray-800 border-b border-gray-700">
+        <tr>
+          <th class="px-4 py-3 text-left">Date</th>
+          <th class="px-4 py-3 text-left">Target URL</th>
+          <th class="px-4 py-3 text-left">Score</th>
+          <th class="px-4 py-3 text-center">High</th>
+          <th class="px-4 py-3 text-center">Med</th>
+          <th class="px-4 py-3 text-center">Low</th>
+          <th class="px-4 py-3 text-center">Info</th>
+          <th class="px-4 py-3 text-left">Status</th>
+          <th class="px-4 py-3 text-left">Actions</th>
+        </tr>
+      </thead>
+      <tbody id="history-tbody" class="divide-y divide-gray-700">
+        <tr class="text-center text-gray-400">
+          <td colspan="9" class="px-4 py-6">Loading…</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

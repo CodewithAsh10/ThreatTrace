@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block title %}Scan Results — VulnGuard{% endblock %}
+
+{% block content %}
+<meta name="scan-id" content="{{ scan_id }}">
+
+<div class="max-w-6xl mx-auto py-12 px-6">
+  <h1 class="text-3xl font-bold mb-8">Scan Results</h1>
+
+  <!-- Score Gauge Row -->
+  <div class="grid grid-cols-3 gap-8 mb-12">
+    <div class="col-span-1 flex justify-center">
+      <svg class="w-48 h-48" viewBox="0 0 120 120">
+        <circle cx="60" cy="60" r="50" stroke="#374151" stroke-width="8" fill="none" opacity="0.2"></circle>
+        <circle 
+          id="gauge-arc" 
+          cx="60" 
+          cy="60" 
+          r="50" 
+          stroke="#22c55e" 
+          stroke-width="8" 
+          fill="none"
+          stroke-dasharray="339.3 339.3"
+          stroke-dashoffset="0"
+          stroke-linecap="round"
+          transform="rotate(-90 60 60)"
+          class="gauge-good"
+        ></circle>
+        <text id="score-text" x="60" y="65" text-anchor="middle" class="text-4xl font-bold fill-gray-100" font-family="Arial, sans-serif" font-size="28">100</text>
+      </svg>
+    </div>
+    <div class="col-span-2 flex flex-col justify-center">
+      <div class="mb-4">
+        <p id="result-url" class="text-gray-400 text-sm">Target URL</p>
+        <p id="result-date" class="text-gray-400 text-sm">Scan Date</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Summary Cards -->
+  <div class="grid grid-cols-4 gap-4 mb-12">
+    <div class="bg-red-900 bg-opacity-20 border border-red-700 rounded-lg p-4 text-center">
+      <p class="text-3xl font-bold text-red-400" id="count-high">0</p>
+      <p class="text-xs text-gray-400 mt-1">HIGH</p>
+    </div>
+    <div class="bg-orange-900 bg-opacity-20 border border-orange-700 rounded-lg p-4 text-center">
+      <p class="text-3xl font-bold text-orange-400" id="count-medium">0</p>
+      <p class="text-xs text-gray-400 mt-1">MEDIUM</p>
+    </div>
+    <div class="bg-yellow-900 bg-opacity-20 border border-yellow-700 rounded-lg p-4 text-center">
+      <p class="text-3xl font-bold text-yellow-400" id="count-low">0</p>
+      <p class="text-xs text-gray-400 mt-1">LOW</p>
+    </div>
+    <div class="bg-blue-900 bg-opacity-20 border border-blue-700 rounded-lg p-4 text-center">
+      <p class="text-3xl font-bold text-blue-400" id="count-info">0</p>
+      <p class="text-xs text-gray-400 mt-1">INFO</p>
+    </div>
+  </div>
+
+  <!-- Findings Table -->
+  <div class="mb-12">
+    <h2 class="text-xl font-bold mb-4">Findings</h2>
+    <div class="overflow-x-auto bg-gray-900 rounded-lg">
+      <table id="findings-table" class="w-full text-sm">
+        <thead class="bg-gray-800 border-b border-gray-700">
+          <tr>
+            <th class="px-4 py-3 text-left">Type</th>
+            <th class="px-4 py-3 text-left">Parameter/Field</th>
+            <th class="px-4 py-3 text-left">Severity</th>
+            <th class="px-4 py-3 text-left">Evidence</th>
+            <th class="px-4 py-3 text-left">Mitigation</th>
+          </tr>
+        </thead>
+        <tbody id="findings-tbody" class="divide-y divide-gray-700">
+          <tr class="text-center text-gray-400">
+            <td colspan="5" class="px-4 py-6">Loading…</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Export Buttons -->
+  <div class="flex gap-4 mb-8">
+    <a id="btn-pdf" href="/api/scan/{{ scan_id }}/report/pdf" download class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+      Download PDF Report
+    </a>
+    <a id="btn-json" href="/api/scan/{{ scan_id }}/report/json" download class="px-6 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition">
+      Download JSON Report
+    </a>
+    <a href="/" class="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition">
+      Scan Another URL
+    </a>
+  </div>
+</div>
+{% endblock %}

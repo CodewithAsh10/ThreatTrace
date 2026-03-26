@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+
+{% block title %}Scan Progress — VulnGuard{% endblock %}
+
+{% block content %}
+<meta name="scan-id" content="{{ scan_id }}">
+
+<div class="max-w-7xl mx-auto py-8 px-6">
+  <h1 class="text-3xl font-bold mb-2">🔍 Live Scan Dashboard</h1>
+  <p id="header-target" class="text-gray-400 font-mono text-sm mb-6">Target: loading…</p>
+
+  <div class="mb-6">
+    <div class="flex justify-between mb-1">
+      <span class="text-sm">Overall Progress</span>
+      <span id="progress-pct" class="text-sm font-semibold">0%</span>
+    </div>
+    <div class="h-3 bg-gray-800 rounded-full overflow-hidden">
+      <div id="progress-bar-inner" class="h-full bg-green-500 transition-all" style="width:0%"></div>
+    </div>
+  </div>
+
+  <div class="lg:grid lg:grid-cols-3 gap-6">
+    <div class="lg:col-span-2 space-y-6">
+      <div class="bg-gray-900 rounded-xl p-6">
+        <h2 class="font-semibold mb-5 text-sm uppercase tracking-wider text-gray-400">Scan Progress</h2>
+        <ol id="module-stepper" class="space-y-4">
+          <li id="step-0" class="step-pending">
+            <div class="flex items-center gap-3">
+              <span id="step-icon-0" class="step-icon text-xl w-7 text-center">⏳</span>
+              <span class="step-name font-medium">Page Crawling</span>
+            </div>
+            <div id="step-detail-0" class="step-detail">Waiting…</div>
+          </li>
+          <li id="step-1" class="step-pending">
+            <div class="flex items-center gap-3">
+              <span id="step-icon-1" class="step-icon text-xl w-7 text-center">⏳</span>
+              <span class="step-name font-medium">SQL Injection Testing</span>
+            </div>
+            <div id="step-detail-1" class="step-detail">Waiting…</div>
+          </li>
+          <li id="step-2" class="step-pending">
+            <div class="flex items-center gap-3">
+              <span id="step-icon-2" class="step-icon text-xl w-7 text-center">⏳</span>
+              <span class="step-name font-medium">XSS Testing</span>
+            </div>
+            <div id="step-detail-2" class="step-detail">Waiting…</div>
+          </li>
+          <li id="step-3" class="step-pending">
+            <div class="flex items-center gap-3">
+              <span id="step-icon-3" class="step-icon text-xl w-7 text-center">⏳</span>
+              <span class="step-name font-medium">Security Headers</span>
+            </div>
+            <div id="step-detail-3" class="step-detail">Waiting…</div>
+          </li>
+          <li id="step-4" class="step-pending">
+            <div class="flex items-center gap-3">
+              <span id="step-icon-4" class="step-icon text-xl w-7 text-center">⏳</span>
+              <span class="step-name font-medium">Input Validation</span>
+            </div>
+            <div id="step-detail-4" class="step-detail">Waiting…</div>
+          </li>
+          <li id="step-5" class="step-pending">
+            <div class="flex items-center gap-3">
+              <span id="step-icon-5" class="step-icon text-xl w-7 text-center">⏳</span>
+              <span class="step-name font-medium">Report Generation</span>
+            </div>
+            <div id="step-detail-5" class="step-detail">Waiting…</div>
+          </li>
+        </ol>
+      </div>
+
+      <div class="bg-gray-900 rounded-xl p-4">
+        <div class="flex items-center justify-between mb-3">
+          <h2 class="font-semibold text-sm uppercase tracking-wider text-gray-400">Live Scan Log</h2>
+          <span class="text-xs text-gray-600">auto-scroll ↓</span>
+        </div>
+        <div id="log-area" class="rounded-lg p-3"></div>
+      </div>
+
+      <div id="completion-area" class="hidden text-center py-6">
+        <p class="text-2xl mb-4">✅ Scan Complete!</p>
+        <a id="view-results-btn" href="#" class="btn-view-results inline-block px-8 py-3 bg-green-600 hover:bg-green-500 rounded-lg font-semibold text-white transition">
+          View Results →
+        </a>
+      </div>
+
+      <div id="error-banner" class="hidden bg-red-900 border border-red-700 text-red-100 px-4 py-3 rounded-lg">
+        <p id="error-text">Scan failed. Please try again.</p>
+        <a href="/" class="mt-2 inline-block text-sm underline">← Back to Home</a>
+      </div>
+    </div>
+
+    <div class="space-y-4">
+      <div class="bg-gray-900 rounded-xl p-5 sticky top-6">
+        <h2 class="font-semibold mb-4 text-sm uppercase tracking-wider text-gray-400">Live Stats</h2>
+        <dl class="space-y-3 text-sm">
+          <div class="flex justify-between">
+            <dt class="text-gray-400">Requests Sent</dt>
+            <dd id="stat-requests" class="font-mono font-semibold">0</dd>
+          </div>
+          <div class="flex justify-between">
+            <dt class="text-gray-400">Payloads Tested</dt>
+            <dd id="stat-payloads" class="font-mono font-semibold">0</dd>
+          </div>
+          <div class="flex justify-between">
+            <dt class="text-gray-400">Vulns Found</dt>
+            <dd id="stat-vulns" class="font-mono font-semibold text-red-400">0</dd>
+          </div>
+          <div class="flex justify-between">
+            <dt class="text-gray-400">Time Elapsed</dt>
+            <dd id="stat-elapsed" class="font-mono font-semibold">00:00</dd>
+          </div>
+        </dl>
+        <hr class="border-gray-700 my-4">
+        <div class="text-sm space-y-2">
+          <p class="text-gray-400 text-xs uppercase tracking-wider">Current Module</p>
+          <p id="stat-module" class="font-medium text-yellow-400">Initialising…</p>
+          <p class="text-gray-400 text-xs uppercase tracking-wider mt-3">Target</p>
+          <p id="stat-target" class="font-mono text-xs text-gray-300 break-all">—</p>
+        </div>
+      </div>
+      <a href="/" class="block text-center text-sm text-blue-400 hover:text-blue-300">← Back to Home</a>
+    </div>
+  </div>
+</div>
+{% endblock %}
