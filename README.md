@@ -1,168 +1,129 @@
 # VulnGuard — Smart Vulnerability Scanner System
 
-Automated web vulnerability scanner for SQL Injection, XSS, missing security headers, and input validation issues. Runs entirely on `localhost:5000` with **no database**, **no Docker**, and **no npm** — just Python.
+VulnGuard is a web vulnerability scanner built to automate practical security checks for modern web applications. It crawls targets, runs multi-module security analysis, streams live scan progress, and generates remediation-focused reports with severity scoring.
 
----
+## Tech Stack
+
+![Python](https://img.shields.io/badge/Python-3.8%2B-84cc16?style=flat-square&logo=python&logoColor=white)
+![Flask](https://img.shields.io/badge/Flask-3.0-black?style=flat-square&logo=flask&logoColor=white)
+![Jinja2](https://img.shields.io/badge/Jinja2-Template%20Engine-b41717?style=flat-square)
+![JavaScript](https://img.shields.io/badge/JavaScript-ES6-f7df1e?style=flat-square&logo=javascript&logoColor=black)
+![Tailwind CSS](https://img.shields.io/badge/TailwindCSS-Utility%20CSS-06b6d4?style=flat-square&logo=tailwindcss&logoColor=white)
+![ReportLab](https://img.shields.io/badge/ReportLab-PDF%20Reports-6b7280?style=flat-square)
+![BeautifulSoup4](https://img.shields.io/badge/BeautifulSoup4-HTML%20Parsing-10b981?style=flat-square)
+![Requests](https://img.shields.io/badge/Requests-HTTP%20Client-3b82f6?style=flat-square)
+
+### Tech Stack (Text)
+
+- Backend: Python, Flask
+- Frontend: Jinja2 templates, Tailwind CSS, Vanilla JavaScript
+- Networking and Parsing: Requests, BeautifulSoup4, lxml, urllib3
+- Reporting: ReportLab (PDF)
+- Runtime: Server-Sent Events (SSE), Python threading
+
+## Key Features
+
+- Automated vulnerability scanning for SQL Injection, XSS, security headers, and input-validation weaknesses.
+- Live scan progress with module-level status, animated counters, and event logs.
+- Results dashboard with narrative summary, score gauge, severity distribution donut, and module-wise bars.
+- Severity classification with mitigation guidance for each finding.
+- Exportable JSON and PDF reports for documentation and review.
+- Scan history view with quick re-open, download, and delete actions.
 
 ## Quick-Start Setup
 
-1. **Clone / download** the project folder.
+1. Clone or download the project.
+2. Create a virtual environment:
+     - Windows: `python -m venv venv` then `venv\Scripts\activate`
+     - macOS/Linux: `python -m venv venv` then `source venv/bin/activate`
+3. Install dependencies: `pip install -r requirements.txt`
+4. Run the application: `python app.py`
+5. Open in browser: http://localhost:5000
 
-2. **Create a virtual environment**
-   - **Windows:** `python -m venv venv` then `venv\Scripts\activate`
-   - **macOS/Linux:** `python -m venv venv` then `source venv/bin/activate`
+## Usage Walkthrough (Short)
 
-3. **Install dependencies:** `pip install -r requirements.txt`
-
-4. **Run the app:** `python app.py`
-
-5. **Open browser:** [http://localhost:5000](http://localhost:5000)
-
----
+1. Enter a target URL on the home page and start the scan.
+2. Monitor real-time progress, module status, counters, and logs.
+3. Review results: score, severity summary, findings table, and charts.
+4. Export the report as PDF or JSON.
+5. Use History to reopen, download, or delete past scans.
 
 ## Project Structure
 
-```
+```text
 vulnguard/
-├── app.py                       # Flask application entry point
-├── config.py                    # Configuration constants
-├── requirements.txt             # Python dependencies
-├── README.md                    # This file
-│
-├── scanner/                     # Vulnerability detection modules
-│   ├── __init__.py
-│   ├── crawler.py               # HTTP request & form extraction
-│   ├── sql_injection_scanner.py # SQLi detection (error-based & blind)
-│   ├── xss_scanner.py           # XSS detection (reflected)
-│   ├── header_scanner.py        # Security header validation
-│   ├── input_validation_scanner.py # Form input validation checks
-│   └── payloads/                # Attack payload files
-│       ├── sqli_payloads.txt
-│       └── xss_payloads.txt
-│
-├── reports/                     # Report generation & analysis
-│   ├── __init__.py
-│   ├── severity_classifier.py   # Severity scoring & classification
-│   ├── mitigation_kb.py         # Remediation guidance database
-│   ├── report_generator.py      # Merge & structure findings
-│   └── pdf_generator.py         # PDF export
-│
-├── storage/                     # Scan persistence layer
-│   ├── __init__.py
-│   └── scan_store.py            # JSON-based storage with thread safety
-│
-├── results/                     # Completed scan records (auto-created)
-│   └── .gitkeep
-│
-├── static/                      # Frontend assets
+├── app.py
+├── config.py
+├── requirements.txt
+├── README.md
+├── scanner/
+│   ├── crawler.py
+│   ├── scan_controller.py
+│   ├── sql_injection_scanner.py
+│   ├── xss_scanner.py
+│   ├── header_scanner.py
+│   ├── input_validation_scanner.py
+│   └── payloads/
+├── reports/
+│   ├── severity_classifier.py
+│   ├── mitigation_kb.py
+│   ├── report_generator.py
+│   └── pdf_generator.py
+├── storage/
+│   └── scan_store.py
+├── results/
+├── static/
 │   ├── css/
-│   │   └── style.css            # Custom CSS (Tailwind extensions)
+│   │   └── style.css
 │   └── js/
-│       └── app.js               # Single-page app logic
-│
-└── templates/                   # Jinja2 templates
-    ├── base.html                # Shared shell
-    ├── index.html               # Home page
-    ├── scan_progress.html       # Live progress with SSE
-    ├── results.html             # Results dashboard
-    └── history.html             # Scan history & management
+│       ├── app.js
+│       └── matrix.js
+└── templates/
+        ├── base.html
+        ├── index.html
+        ├── scan_progress.html
+        ├── results.html
+        └── history.html
 ```
-
----
-
-## Usage Walkthrough
-
-### 1. Home Page
-Paste a target URL (e.g., `http://testphp.vulnweb.com`) and choose **Quick Scan** or **Full Scan**. Click **Start Scan**.
-
-### 2. Scan Progress Page
-You're redirected to a live progress dashboard showing:
-- Overall progress bar (0–100%)
-- Module checklist with real-time status icons (⏳ waiting, 🔄 running, ✅ complete)
-- Live log of events with timestamps
-
-Updates arrive via Server-Sent Events (SSE) every 1 second until completion or timeout.
-
-### 3. Results Dashboard
-When the scan completes, auto-redirects to the results page displaying:
-- **Security Score Gauge** — circular SVG showing 0–100 score (green ≥70, yellow 40–69, red <40)
-- **Severity Summary Cards** — counts of HIGH, MEDIUM, LOW, and INFO findings
-- **Findings Table** — full details per vulnerability (type, parameter, evidence, mitigation)
-- **Export Buttons** — Download PDF Report or JSON Report
-
-### 4. Download Reports
-- **PDF Report** — Professional security report with branding, score, summary, and findings
-- **JSON Report** — Full structured data for integration with other tools
-
-### 5. History Page
-Navigate to **History** (top nav) to:
-- View all past scans as a filterable/sortable table
-- Re-open any scan's results
-- Download PDF/JSON for any scan
-- Delete completed scans
-
----
 
 ## Scan Modules
 
-| Module | What it checks |
-|---|---|
-| **SQL Injection Scanner** | URL parameters & form fields via 20+ payloads; error-based detection (DB error texts) and blind detection (response timing/length) |
-| **XSS Scanner** | URL parameters & form fields via 20+ payloads; unescaped reflection detection |
-| **Header Analyzer** | CSP, HSTS, X-Frame-Options, X-Content-Type-Options, X-XSS-Protection, Strict-Transport-Security, Referrer-Policy, Permissions-Policy |
-| **Input Validation Scanner** | Missing HTML5 constraints: `required`, `maxlength`, `pattern`, `type`; hidden fields; HTTP (non-HTTPS) form actions |
-
----
+- SQL Injection Scanner: Tests URL params and form fields using payload-based SQLi checks.
+- XSS Scanner: Detects reflective script injection through payload reflection analysis.
+- Header Analyzer: Validates critical security headers and highlights missing/misconfigured headers.
+- Input Validation Scanner: Flags weak client-side input constraints and unsafe form behavior.
 
 ## Scoring System
 
-Score starts at **100** and deducts per finding:
+- Score starts at 100.
+- Deduction per finding:
+    - HIGH: -25
+    - MEDIUM: -15
+    - LOW: -5
+    - INFO: -0
 
-| Severity | Deduction |
-|---|---|
-| HIGH | −25 |
-| MEDIUM | −15 |
-| LOW | −5 |
-| INFO | −1 |
+Score bands:
+- Green: 70 and above
+- Yellow: 40 to 69
+- Red: below 40
 
-**Minimum score: 0**
+## Project Team
 
-**Gauge color:**
-- 🟢 **Green:** ≥ 70 (Good)
-- 🟡 **Yellow:** 40–69 (Needs Improvement)
-- 🔴 **Red:** < 40 (Critical)
+- Neel Pandey : 24BCE10303
+- Yash Tripathi : 24BCE10603
+- Mohit Bankar : 24BCE11104
+- Arsh Bakshi : 24BCE10568
+- Ayush Man Singh Bhadauria : 24BCE10404
 
----
+## Supervisor
 
-## Safety & Responsible Disclosure
+- Dr. Nilesh Kunhare
 
-⚠️ **VulnGuard performs passive, read-only testing only.** It does not:
-- Exploit or modify the target
-- Store sensitive data
-- Persist credentials or session tokens
-- Bypass authentication
+## Reviewer
 
-**Always obtain written permission before scanning any website you do not own.**
-
----
-
-## Results Persistence
-
-Completed scans are saved automatically to `results/scan_<scan_id>.json`. On the next startup (`python app.py`), all prior scans are reloaded from disk into memory — **no database required**. Deleting a scan from the History page removes it from both memory and disk.
-
----
-
-## Technology Stack
-
-- **Backend:** Flask (Python 3.10+)
-- **Frontend:** Jinja2 templates + Tailwind CSS + Vanilla JavaScript + SSE
-- **PDF Generation:** ReportLab
-- **HTTP Inspection:** requests + BeautifulSoup4
-- **Threading:** Python `threading` module (daemon threads, RLock for sync)
-- **Deployment:** None — runs locally with `python app.py`
-
----
+- Dr.Gaurav Soni
+- Dr.Ravi Verma
 
 ## License
 
-MIT License — See LICENSE file (if included) for details.
+This project is for educational purposes.
