@@ -13,14 +13,6 @@ VulnGuard is a web vulnerability scanner built to automate practical security ch
 ![BeautifulSoup4](https://img.shields.io/badge/BeautifulSoup4-HTML%20Parsing-10b981?style=flat-square)
 ![Requests](https://img.shields.io/badge/Requests-HTTP%20Client-3b82f6?style=flat-square)
 
-### Tech Stack (Text)
-
-- Backend: Python, Flask
-- Frontend: Jinja2 templates, Tailwind CSS, Vanilla JavaScript
-- Networking and Parsing: Requests, BeautifulSoup4, lxml, urllib3
-- Reporting: ReportLab (PDF)
-- Runtime: Server-Sent Events (SSE), Python threading
-
 ## Key Features
 
 - Automated vulnerability scanning for SQL Injection, XSS, security headers, and input-validation weaknesses.
@@ -40,7 +32,7 @@ VulnGuard is a web vulnerability scanner built to automate practical security ch
 4. Run the application: `python app.py`
 5. Open in browser: http://localhost:5000
 
-## Usage Walkthrough (Short)
+## Usage Walkthrough 
 
 1. Enter a target URL on the home page and start the scan.
 2. Monitor real-time progress, module status, counters, and logs.
@@ -85,6 +77,13 @@ vulnguard/
         ├── results.html
         └── history.html
 ```
+### Tech Stack
+
+- Backend: Python, Flask
+- Frontend: Jinja2 templates, Tailwind CSS, Vanilla JavaScript
+- Networking and Parsing: Requests, BeautifulSoup4, lxml, urllib3
+- Reporting: ReportLab (PDF)
+- Runtime: Server-Sent Events (SSE), Python threading
 
 ## Scan Modules
 
@@ -109,9 +108,9 @@ Score bands:
 
 ## Project Team
 
-- Neel Pandey : 24BCE10303
 - Yash Tripathi : 24BCE10603
 - Mohit Bankar : 24BCE11104
+- Neel Pandey : 24BCE10303
 - Arsh Bakshi : 24BCE10568
 - Ayush Man Singh Bhadauria : 24BCE10404
 
