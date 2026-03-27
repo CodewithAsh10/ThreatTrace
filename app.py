@@ -5,6 +5,8 @@ import urllib.parse
 import uuid
 from io import BytesIO
 
+import requests
+import urllib3
 from flask import Flask, Response, jsonify, render_template, request, send_file
 
 from config import FLASK_DEBUG, FLASK_HOST, FLASK_PORT
@@ -14,6 +16,7 @@ from storage import ScanStore
 
 
 logging.basicConfig(level=logging.INFO)
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 app = Flask(__name__)
 scan_store = ScanStore()
@@ -33,12 +36,23 @@ def create_scan():
 	payload = request.get_json(silent=True) or {}
 	url = payload.get("url", "")
 	scan_type = payload.get("scan_type", "full")
+	client_timezone = payload.get("client_timezone")
 
 	if not _is_valid_url(url):
 		return jsonify({"error": "Invalid URL"}), 400
 
+	try:
+		response = requests.head(url, timeout=8, allow_redirects=True, verify=False)
+		if response.status_code == 405:
+			response = requests.get(url, timeout=8, stream=True, verify=False)
+			response.close()
+		if response.status_code >= 400:
+			return jsonify({"error": "URL is unreachable or does not exist"}), 400
+	except requests.exceptions.RequestException:
+		return jsonify({"error": "URL is unreachable or does not exist"}), 400
+
 	scan_id = str(uuid.uuid4())
-	scan_controller.start_scan(scan_id, url, scan_type)
+	scan_controller.start_scan(scan_id, url, scan_type, client_timezone)
 	return jsonify({"scan_id": scan_id, "status": "started"}), 201
 
 
@@ -73,7 +87,7 @@ def scan_report_pdf(scan_id):
 	if not record:
 		return jsonify({"error": "Scan not found"}), 404
 
-	pdf_bytes = PDFGenerator().generate_pdf(record)
+	pdf_bytes = PDFGenerator().generate_pdf(record, client_timezone=record.get("client_timezone"))
 	return send_file(
 		BytesIO(pdf_bytes),
 		mimetype="application/pdf",

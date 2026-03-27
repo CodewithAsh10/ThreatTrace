@@ -1,0 +1,270 @@
+{
+  "scan_id": "03c46f44-f366-44cf-8f66-58e1e92638e6",
+  "url": "https://www.youtube.com/",
+  "scan_type": "full",
+  "client_timezone": "Asia/Calcutta",
+  "status": "completed",
+  "started_at": "2026-03-26T21:58:34.400511",
+  "completed_at": "2026-03-26T21:59:19.941828",
+  "progress": 100,
+  "current_module": "Completed",
+  "results": null,
+  "score": 95,
+  "progress_log": [
+    {
+      "timestamp": "21:59:03",
+      "icon": "\u2705",
+      "message": "\u2705 Content-Security-Policy OK"
+    },
+    {
+      "timestamp": "21:59:03",
+      "icon": "\u2705",
+      "message": "\u2705 X-Content-Type-Options OK"
+    },
+    {
+      "timestamp": "21:59:03",
+      "icon": "\u2705",
+      "message": "\u2705 X-Frame-Options OK"
+    },
+    {
+      "timestamp": "21:59:03",
+      "icon": "\u2705",
+      "message": "\u2705 Strict-Transport-Security OK"
+    },
+    {
+      "timestamp": "21:59:03",
+      "icon": "\u2705",
+      "message": "\u2705 X-XSS-Protection OK"
+    },
+    {
+      "timestamp": "21:59:03",
+      "icon": "\u26a0\ufe0f",
+      "message": "\ud83d\udee1\ufe0f Missing: Referrer-Policy"
+    },
+    {
+      "timestamp": "21:59:03",
+      "icon": "\u2705",
+      "message": "\u2705 Permissions-Policy OK"
+    },
+    {
+      "timestamp": "21:59:03",
+      "icon": "\u2705",
+      "message": "\u2705 Cache-Control OK"
+    }
+  ],
+  "pending_findings": [
+    {
+      "timestamp": "21:59:03",
+      "module": "Security Headers",
+      "severity": "MEDIUM",
+      "detail": "Missing header: Referrer-Policy",
+      "message": "\ud83d\udee1\ufe0f Missing: Referrer-Policy"
+    }
+  ],
+  "modules": [
+    {
+      "name": "Page Crawler",
+      "status": "completed",
+      "details": "Found 0 forms, 0 params"
+    },
+    {
+      "name": "SQL Injection",
+      "status": "completed",
+      "details": "Testing SQL injection payloads"
+    },
+    {
+      "name": "XSS Scanner",
+      "status": "completed",
+      "details": "Testing XSS payloads"
+    },
+    {
+      "name": "Security Headers",
+      "status": "completed",
+      "details": "\u2705 Cache-Control present"
+    },
+    {
+      "name": "Input Validation",
+      "status": "completed",
+      "details": "Validating form fields"
+    },
+    {
+      "name": "Report Generation",
+      "status": "completed",
+      "details": "Report ready"
+    }
+  ],
+  "stats": {
+    "requests_sent": 0,
+    "payloads_tested": 0,
+    "vulnerabilities_found": 1,
+    "elapsed_seconds": 29
+  },
+  "duration_seconds": 45,
+  "summary": {
+    "HIGH": 0,
+    "MEDIUM": 0,
+    "LOW": 1,
+    "INFO": 10,
+    "total": 11
+  },
+  "findings": [
+    {
+      "type": "Missing Security Header",
+      "header": "Referrer-Policy",
+      "status": "missing",
+      "risk_description": "Missing Referrer-Policy may leak sensitive URL data to third parties.",
+      "actual_value": null,
+      "parameter": "Referrer-Policy",
+      "evidence": "Missing Referrer-Policy may leak sensitive URL data to third parties.",
+      "url": "https://www.youtube.com/",
+      "payload": "N/A",
+      "confidence": "Medium",
+      "severity": "LOW",
+      "mitigation": "Set Referrer-Policy to strict-origin-when-cross-origin.",
+      "raw_type": "missing_header"
+    },
+    {
+      "type": "SQL Injection",
+      "parameter": "N/A",
+      "payload": "N/A",
+      "evidence": "No SQL injection vulnerabilities detected",
+      "confidence": "Low",
+      "method": "none",
+      "url": "https://www.youtube.com/",
+      "severity": "INFO",
+      "mitigation": "No remediation needed. No vulnerabilities were detected for this check.",
+      "raw_type": "sql_injection"
+    },
+    {
+      "type": "XSS",
+      "parameter": "N/A",
+      "payload": "N/A",
+      "location": "none",
+      "evidence": "No XSS vulnerabilities detected",
+      "url": "https://www.youtube.com/",
+      "confidence": "Medium",
+      "severity": "INFO",
+      "mitigation": "No remediation needed. No vulnerabilities were detected for this check.",
+      "raw_type": "xss"
+    },
+    {
+      "type": "Security Header",
+      "header": "Content-Security-Policy",
+      "status": "present",
+      "risk_description": "",
+      "actual_value": "require-trusted-types-for 'script'",
+      "parameter": "Content-Security-Policy",
+      "evidence": "N/A",
+      "url": "https://www.youtube.com/",
+      "payload": "N/A",
+      "confidence": "Medium",
+      "severity": "INFO",
+      "mitigation": "Security header is present and appears correctly configured. No remediation needed.",
+      "raw_type": "header_status"
+    },
+    {
+      "type": "Security Header",
+      "header": "X-Content-Type-Options",
+      "status": "present",
+      "risk_description": "",
+      "actual_value": "nosniff",
+      "parameter": "X-Content-Type-Options",
+      "evidence": "N/A",
+      "url": "https://www.youtube.com/",
+      "payload": "N/A",
+      "confidence": "Medium",
+      "severity": "INFO",
+      "mitigation": "Security header is present and appears correctly configured. No remediation needed.",
+      "raw_type": "header_status"
+    },
+    {
+      "type": "Security Header",
+      "header": "X-Frame-Options",
+      "status": "present",
+      "risk_description": "",
+      "actual_value": "SAMEORIGIN",
+      "parameter": "X-Frame-Options",
+      "evidence": "N/A",
+      "url": "https://www.youtube.com/",
+      "payload": "N/A",
+      "confidence": "Medium",
+      "severity": "INFO",
+      "mitigation": "Security header is present and appears correctly configured. No remediation needed.",
+      "raw_type": "header_status"
+    },
+    {
+      "type": "Security Header",
+      "header": "Strict-Transport-Security",
+      "status": "present",
+      "risk_description": "",
+      "actual_value": "max-age=31536000",
+      "parameter": "Strict-Transport-Security",
+      "evidence": "N/A",
+      "url": "https://www.youtube.com/",
+      "payload": "N/A",
+      "confidence": "Medium",
+      "severity": "INFO",
+      "mitigation": "Security header is present and appears correctly configured. No remediation needed.",
+      "raw_type": "header_status"
+    },
+    {
+      "type": "Security Header",
+      "header": "X-XSS-Protection",
+      "status": "present",
+      "risk_description": "",
+      "actual_value": "0",
+      "parameter": "X-XSS-Protection",
+      "evidence": "N/A",
+      "url": "https://www.youtube.com/",
+      "payload": "N/A",
+      "confidence": "Medium",
+      "severity": "INFO",
+      "mitigation": "Security header is present and appears correctly configured. No remediation needed.",
+      "raw_type": "header_status"
+    },
+    {
+      "type": "Security Header",
+      "header": "Permissions-Policy",
+      "status": "present",
+      "risk_description": "",
+      "actual_value": "ch-ua-arch=*, ch-ua-bitness=*, ch-ua-full-version=*, ch-ua-full-version-list=*, ch-ua-model=*, ch-ua-wow64=*, ch-ua-form-factors=*, ch-ua-platform=*, ch-ua-platform-version=*",
+      "parameter": "Permissions-Policy",
+      "evidence": "N/A",
+      "url": "https://www.youtube.com/",
+      "payload": "N/A",
+      "confidence": "Medium",
+      "severity": "INFO",
+      "mitigation": "Security header is present and appears correctly configured. No remediation needed.",
+      "raw_type": "header_status"
+    },
+    {
+      "type": "Security Header",
+      "header": "Cache-Control",
+      "status": "present",
+      "risk_description": "",
+      "actual_value": "no-cache, no-store, max-age=0, must-revalidate",
+      "parameter": "Cache-Control",
+      "evidence": "N/A",
+      "url": "https://www.youtube.com/",
+      "payload": "N/A",
+      "confidence": "Medium",
+      "severity": "INFO",
+      "mitigation": "Security header is present and appears correctly configured. No remediation needed.",
+      "raw_type": "header_status"
+    },
+    {
+      "type": "Input Validation",
+      "form_action": "https://www.youtube.com/",
+      "field_name": "N/A",
+      "issue": "No form fields found to validate",
+      "parameter": "N/A",
+      "evidence": "No form fields found to validate",
+      "url": "https://www.youtube.com/",
+      "payload": "N/A",
+      "confidence": "Medium",
+      "severity": "INFO",
+      "mitigation": "No remediation needed. No vulnerabilities were detected for this check.",
+      "raw_type": "input_validation"
+    }
+  ]
+}

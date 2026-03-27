@@ -7,7 +7,7 @@
   <!-- Hero Section -->
   <div class="max-w-2xl mx-auto w-full">
     <div class="text-center mb-8">
-      <h1 class="text-4xl font-bold mb-2">Scan Your Website for Vulnerabilities</h1>
+      <h1 class="text-4xl font-bold mb-2"><span class="hero-glitch">Scan Your Website for Vulnerabilities</span></h1>
       <p class="text-gray-400">Automated scanning for SQL Injection, XSS, security headers, and input validation issues.</p>
     </div>
 
@@ -22,17 +22,6 @@
         >
       </div>
 
-      <div class="flex gap-6">
-        <label class="flex items-center gap-2 px-4 py-2 rounded-lg border-2 border-gray-700 cursor-pointer hover:border-green-500 transition">
-          <input type="radio" name="scan_type" value="quick" class="w-4 h-4">
-          <span>Quick Scan</span>
-        </label>
-        <label class="flex items-center gap-2 px-4 py-2 rounded-lg border-2 border-green-500 bg-green-500 bg-opacity-10 cursor-pointer">
-          <input type="radio" name="scan_type" value="full" checked class="w-4 h-4">
-          <span>Full Scan</span>
-        </label>
-      </div>
-
       <button 
         id="start-btn"
         type="submit" 
@@ -45,6 +34,8 @@
         </svg>
       </button>
 
+      <p class="terminal-status">[ SYSTEM READY ] — VulnGuard v1.0 — 4 modules loaded</p>
+
       <p id="error-msg" class="hidden text-red-400 text-sm"></p>
     </form>
   </div>
@@ -55,7 +46,7 @@
       <div class="flex flex-col items-center text-center gap-2 flex-1">
         <span class="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-lg bg-green-500">1</span>
         <h3 class="font-semibold text-sm">Enter URL</h3>
-        <p class="text-xs text-gray-400">Paste your target website URL and choose Quick or Full scan</p>
+        <p class="text-xs text-gray-400">Paste your target website URL to begin a full security scan</p>
       </div>
       <span class="text-gray-600 text-2xl self-center flex-shrink-0 hidden sm:block">→</span>
       <div class="flex flex-col items-center text-center gap-2 flex-1">
@@ -81,25 +72,25 @@
   <section class="max-w-4xl mx-auto w-full">
     <h2 class="text-xl font-bold mb-6 text-center">What We Scan For</h2>
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-      <div class="bg-gray-900 border border-gray-800 rounded-xl p-5 flex flex-col gap-2">
+      <div class="bg-gray-900 scanline-card border border-gray-800 rounded-xl p-5 flex flex-col gap-2">
         <span class="text-3xl">🛢️</span>
         <h3 class="font-semibold text-sm">SQL Injection</h3>
         <p class="text-xs text-gray-400">Tests parameters with 20+ payloads</p>
         <p class="text-xs text-gray-400">Detects error-based & blind SQLi</p>
       </div>
-      <div class="bg-gray-900 border border-gray-800 rounded-xl p-5 flex flex-col gap-2">
+      <div class="bg-gray-900 scanline-card border border-gray-800 rounded-xl p-5 flex flex-col gap-2">
         <span class="text-3xl">📝</span>
         <h3 class="font-semibold text-sm">XSS Attacks</h3>
         <p class="text-xs text-gray-400">Injects script tags into every input</p>
         <p class="text-xs text-gray-400">Catches reflected & stored XSS</p>
       </div>
-      <div class="bg-gray-900 border border-gray-800 rounded-xl p-5 flex flex-col gap-2">
+      <div class="bg-gray-900 scanline-card border border-gray-800 rounded-xl p-5 flex flex-col gap-2">
         <span class="text-3xl">🛡️</span>
         <h3 class="font-semibold text-sm">Security Headers</h3>
         <p class="text-xs text-gray-400">Checks CSP, HSTS, X-Frame-Options</p>
         <p class="text-xs text-gray-400">Flags missing or misconfigured headers</p>
       </div>
-      <div class="bg-gray-900 border border-gray-800 rounded-xl p-5 flex flex-col gap-2">
+      <div class="bg-gray-900 scanline-card border border-gray-800 rounded-xl p-5 flex flex-col gap-2">
         <span class="text-3xl">✅</span>
         <h3 class="font-semibold text-sm">Input Validation</h3>
         <p class="text-xs text-gray-400">Tests form fields for boundary flaws</p>

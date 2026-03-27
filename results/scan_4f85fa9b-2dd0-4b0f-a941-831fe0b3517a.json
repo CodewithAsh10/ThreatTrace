@@ -1,94 +1,74 @@
 {
-  "scan_id": "d7fa0355-00a5-43ba-966d-77284b654d42",
-  "url": "https://takeuforward.org/",
+  "scan_id": "4f85fa9b-2dd0-4b0f-a941-831fe0b3517a",
+  "url": "https://www.chess.com/",
   "scan_type": "full",
+  "client_timezone": "Asia/Calcutta",
   "status": "completed",
-  "started_at": "2026-03-26T12:33:22.220166",
-  "completed_at": "2026-03-26T12:33:23.173911",
+  "started_at": "2026-03-26T21:56:16.258739",
+  "completed_at": "2026-03-26T21:57:00.485916",
   "progress": 100,
   "current_module": "Completed",
   "results": null,
-  "score": 55,
+  "score": 85,
   "progress_log": [
     {
-      "timestamp": "12:33:23",
+      "timestamp": "21:56:44",
       "icon": "\u2705",
       "message": "\u2705 Content-Security-Policy OK"
     },
     {
-      "timestamp": "12:33:23",
-      "icon": "\u26a0\ufe0f",
-      "message": "\ud83d\udee1\ufe0f Missing: X-Content-Type-Options"
+      "timestamp": "21:56:44",
+      "icon": "\u2705",
+      "message": "\u2705 X-Content-Type-Options OK"
     },
     {
-      "timestamp": "12:33:23",
-      "icon": "\u26a0\ufe0f",
-      "message": "\ud83d\udee1\ufe0f Missing: X-Frame-Options"
+      "timestamp": "21:56:44",
+      "icon": "\u2705",
+      "message": "\u2705 X-Frame-Options OK"
     },
     {
-      "timestamp": "12:33:23",
-      "icon": "\u26a0\ufe0f",
-      "message": "\ud83d\udee1\ufe0f Missing: Strict-Transport-Security"
+      "timestamp": "21:56:44",
+      "icon": "\u2705",
+      "message": "\u2705 Strict-Transport-Security OK"
     },
     {
-      "timestamp": "12:33:23",
+      "timestamp": "21:56:44",
       "icon": "\u26a0\ufe0f",
       "message": "\ud83d\udee1\ufe0f Missing: X-XSS-Protection"
     },
     {
-      "timestamp": "12:33:23",
+      "timestamp": "21:56:44",
       "icon": "\u26a0\ufe0f",
       "message": "\ud83d\udee1\ufe0f Missing: Referrer-Policy"
     },
     {
-      "timestamp": "12:33:23",
+      "timestamp": "21:56:44",
       "icon": "\u26a0\ufe0f",
       "message": "\ud83d\udee1\ufe0f Missing: Permissions-Policy"
     },
     {
-      "timestamp": "12:33:23",
+      "timestamp": "21:56:44",
       "icon": "\u2705",
       "message": "\u2705 Cache-Control OK"
     }
   ],
   "pending_findings": [
     {
-      "timestamp": "12:33:23",
-      "module": "Security Headers",
-      "severity": "MEDIUM",
-      "detail": "Missing header: X-Content-Type-Options",
-      "message": "\ud83d\udee1\ufe0f Missing: X-Content-Type-Options"
-    },
-    {
-      "timestamp": "12:33:23",
-      "module": "Security Headers",
-      "severity": "MEDIUM",
-      "detail": "Missing header: X-Frame-Options",
-      "message": "\ud83d\udee1\ufe0f Missing: X-Frame-Options"
-    },
-    {
-      "timestamp": "12:33:23",
-      "module": "Security Headers",
-      "severity": "MEDIUM",
-      "detail": "Missing header: Strict-Transport-Security",
-      "message": "\ud83d\udee1\ufe0f Missing: Strict-Transport-Security"
-    },
-    {
-      "timestamp": "12:33:23",
+      "timestamp": "21:56:44",
       "module": "Security Headers",
       "severity": "MEDIUM",
       "detail": "Missing header: X-XSS-Protection",
       "message": "\ud83d\udee1\ufe0f Missing: X-XSS-Protection"
     },
     {
-      "timestamp": "12:33:23",
+      "timestamp": "21:56:44",
       "module": "Security Headers",
       "severity": "MEDIUM",
       "detail": "Missing header: Referrer-Policy",
       "message": "\ud83d\udee1\ufe0f Missing: Referrer-Policy"
     },
     {
-      "timestamp": "12:33:23",
+      "timestamp": "21:56:44",
       "module": "Security Headers",
       "severity": "MEDIUM",
       "detail": "Missing header: Permissions-Policy",
@@ -130,63 +110,18 @@
   "stats": {
     "requests_sent": 0,
     "payloads_tested": 0,
-    "vulnerabilities_found": 6,
-    "elapsed_seconds": 0
+    "vulnerabilities_found": 3,
+    "elapsed_seconds": 28
   },
-  "duration_seconds": 0,
+  "duration_seconds": 44,
   "summary": {
     "HIGH": 0,
-    "MEDIUM": 1,
-    "LOW": 5,
-    "INFO": 5,
+    "MEDIUM": 0,
+    "LOW": 3,
+    "INFO": 8,
     "total": 11
   },
   "findings": [
-    {
-      "type": "Missing Security Header",
-      "header": "Strict-Transport-Security",
-      "status": "missing",
-      "risk_description": "Missing HSTS can allow downgrade attacks over insecure transport.",
-      "actual_value": null,
-      "parameter": "Strict-Transport-Security",
-      "evidence": "Missing HSTS can allow downgrade attacks over insecure transport.",
-      "url": "https://takeuforward.org/",
-      "payload": "N/A",
-      "confidence": "Medium",
-      "severity": "MEDIUM",
-      "mitigation": "Enable HSTS with max-age=31536000; includeSubDomains.",
-      "raw_type": "missing_header"
-    },
-    {
-      "type": "Missing Security Header",
-      "header": "X-Content-Type-Options",
-      "status": "missing",
-      "risk_description": "Missing X-Content-Type-Options may allow MIME-sniffing attacks.",
-      "actual_value": null,
-      "parameter": "X-Content-Type-Options",
-      "evidence": "Missing X-Content-Type-Options may allow MIME-sniffing attacks.",
-      "url": "https://takeuforward.org/",
-      "payload": "N/A",
-      "confidence": "Medium",
-      "severity": "LOW",
-      "mitigation": "Set X-Content-Type-Options to nosniff.",
-      "raw_type": "missing_header"
-    },
-    {
-      "type": "Missing Security Header",
-      "header": "X-Frame-Options",
-      "status": "missing",
-      "risk_description": "Missing X-Frame-Options can expose the site to clickjacking.",
-      "actual_value": null,
-      "parameter": "X-Frame-Options",
-      "evidence": "Missing X-Frame-Options can expose the site to clickjacking.",
-      "url": "https://takeuforward.org/",
-      "payload": "N/A",
-      "confidence": "Medium",
-      "severity": "LOW",
-      "mitigation": "Set X-Frame-Options to DENY or SAMEORIGIN; prefer CSP frame-ancestors where possible.",
-      "raw_type": "missing_header"
-    },
     {
       "type": "Missing Security Header",
       "header": "X-XSS-Protection",
@@ -195,7 +130,7 @@
       "actual_value": null,
       "parameter": "X-XSS-Protection",
       "evidence": "Missing X-XSS-Protection may reduce browser-level XSS mitigation.",
-      "url": "https://takeuforward.org/",
+      "url": "https://www.chess.com/",
       "payload": "N/A",
       "confidence": "Medium",
       "severity": "LOW",
@@ -210,7 +145,7 @@
       "actual_value": null,
       "parameter": "Referrer-Policy",
       "evidence": "Missing Referrer-Policy may leak sensitive URL data to third parties.",
-      "url": "https://takeuforward.org/",
+      "url": "https://www.chess.com/",
       "payload": "N/A",
       "confidence": "Medium",
       "severity": "LOW",
@@ -225,7 +160,7 @@
       "actual_value": null,
       "parameter": "Permissions-Policy",
       "evidence": "Missing Permissions-Policy may expose browser capabilities unnecessarily.",
-      "url": "https://takeuforward.org/",
+      "url": "https://www.chess.com/",
       "payload": "N/A",
       "confidence": "Medium",
       "severity": "LOW",
@@ -239,7 +174,7 @@
       "evidence": "No SQL injection vulnerabilities detected",
       "confidence": "Low",
       "method": "none",
-      "url": "https://takeuforward.org/",
+      "url": "https://www.chess.com/",
       "severity": "INFO",
       "mitigation": "No remediation needed. No vulnerabilities were detected for this check.",
       "raw_type": "sql_injection"
@@ -250,7 +185,7 @@
       "payload": "N/A",
       "location": "none",
       "evidence": "No XSS vulnerabilities detected",
-      "url": "https://takeuforward.org/",
+      "url": "https://www.chess.com/",
       "confidence": "Medium",
       "severity": "INFO",
       "mitigation": "No remediation needed. No vulnerabilities were detected for this check.",
@@ -264,7 +199,52 @@
       "actual_value": "frame-ancestors 'self'",
       "parameter": "Content-Security-Policy",
       "evidence": "N/A",
-      "url": "https://takeuforward.org/",
+      "url": "https://www.chess.com/",
+      "payload": "N/A",
+      "confidence": "Medium",
+      "severity": "INFO",
+      "mitigation": "Security header is present and appears correctly configured. No remediation needed.",
+      "raw_type": "header_status"
+    },
+    {
+      "type": "Security Header",
+      "header": "X-Content-Type-Options",
+      "status": "present",
+      "risk_description": "",
+      "actual_value": "nosniff",
+      "parameter": "X-Content-Type-Options",
+      "evidence": "N/A",
+      "url": "https://www.chess.com/",
+      "payload": "N/A",
+      "confidence": "Medium",
+      "severity": "INFO",
+      "mitigation": "Security header is present and appears correctly configured. No remediation needed.",
+      "raw_type": "header_status"
+    },
+    {
+      "type": "Security Header",
+      "header": "X-Frame-Options",
+      "status": "present",
+      "risk_description": "",
+      "actual_value": "SAMEORIGIN",
+      "parameter": "X-Frame-Options",
+      "evidence": "N/A",
+      "url": "https://www.chess.com/",
+      "payload": "N/A",
+      "confidence": "Medium",
+      "severity": "INFO",
+      "mitigation": "Security header is present and appears correctly configured. No remediation needed.",
+      "raw_type": "header_status"
+    },
+    {
+      "type": "Security Header",
+      "header": "Strict-Transport-Security",
+      "status": "present",
+      "risk_description": "",
+      "actual_value": "max-age=31536000; includeSubDomains",
+      "parameter": "Strict-Transport-Security",
+      "evidence": "N/A",
+      "url": "https://www.chess.com/",
       "payload": "N/A",
       "confidence": "Medium",
       "severity": "INFO",
@@ -276,10 +256,10 @@
       "header": "Cache-Control",
       "status": "present",
       "risk_description": "",
-      "actual_value": "private, no-cache, no-store, max-age=0, must-revalidate",
+      "actual_value": "max-age=0, must-revalidate, private",
       "parameter": "Cache-Control",
       "evidence": "N/A",
-      "url": "https://takeuforward.org/",
+      "url": "https://www.chess.com/",
       "payload": "N/A",
       "confidence": "Medium",
       "severity": "INFO",
@@ -288,12 +268,12 @@
     },
     {
       "type": "Input Validation",
-      "form_action": "https://takeuforward.org/",
+      "form_action": "https://www.chess.com/",
       "field_name": "N/A",
       "issue": "No form fields found to validate",
       "parameter": "N/A",
       "evidence": "No form fields found to validate",
-      "url": "https://takeuforward.org/",
+      "url": "https://www.chess.com/",
       "payload": "N/A",
       "confidence": "Medium",
       "severity": "INFO",

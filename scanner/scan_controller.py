@@ -33,7 +33,13 @@ class ScanController:
 		self.scan_store = scan_store
 		self.report_generator = ReportGenerator()
 
-	def start_scan(self, scan_id: str, url: str, scan_type: str) -> None:
+	def start_scan(
+		self,
+		scan_id: str,
+		url: str,
+		scan_type: str,
+		client_timezone: str | None = None,
+	) -> None:
 		if not scan_id:
 			scan_id = str(uuid.uuid4())
 
@@ -41,6 +47,7 @@ class ScanController:
 			"scan_id": scan_id,
 			"url": url,
 			"scan_type": scan_type,
+			"client_timezone": client_timezone,
 			"status": "queued",
 			"started_at": datetime.utcnow().isoformat(),
 			"completed_at": None,
@@ -132,7 +139,7 @@ class ScanController:
 				current_stats["elapsed_seconds"] = int(time.monotonic() - scan_start_time)
 
 				log_entry = {
-					"timestamp": datetime.utcnow().strftime("%H:%M:%S"),
+					"timestamp": f"{datetime.utcnow().strftime('%H:%M:%S')} UTC",
 					"icon": icon,
 					"message": message,
 				}
@@ -140,7 +147,7 @@ class ScanController:
 				finding_event = None
 				if event_type == "finding":
 					finding_event = {
-						"timestamp": datetime.utcnow().strftime("%H:%M:%S"),
+						"timestamp": f"{datetime.utcnow().strftime('%H:%M:%S')} UTC",
 						"module": event.get("module", module_name),
 						"severity": event.get("severity", "INFO"),
 						"detail": event.get("detail", ""),
@@ -188,6 +195,7 @@ class ScanController:
 				current_modules[0]["details"] = f"Found {forms_count} forms, {params_count} params"
 				self.scan_store.update_scan_progress(scan_id, modules=current_modules, stats=current_stats)
 			self.scan_store.update_progress(scan_id, 10, "Crawler", "in-progress")
+			time.sleep(3)
 			if time.monotonic() > deadline:
 				self._mark_timeout(
 					scan_id,
@@ -229,6 +237,7 @@ class ScanController:
 				current_modules[1]["status"] = "completed"
 				self.scan_store.update_scan_progress(scan_id, modules=current_modules, stats=current_stats)
 			self.scan_store.update_progress(scan_id, 25, "SQL Injection Scanner", "in-progress")
+			time.sleep(12)
 			if time.monotonic() > deadline:
 				self._mark_timeout(
 					scan_id,
@@ -270,6 +279,7 @@ class ScanController:
 				current_modules[2]["status"] = "completed"
 				self.scan_store.update_scan_progress(scan_id, modules=current_modules, stats=current_stats)
 			self.scan_store.update_progress(scan_id, 50, "XSS Scanner", "in-progress")
+			time.sleep(12)
 			if time.monotonic() > deadline:
 				self._mark_timeout(
 					scan_id,
@@ -310,6 +320,7 @@ class ScanController:
 				current_modules[3]["status"] = "completed"
 				self.scan_store.update_scan_progress(scan_id, modules=current_modules, stats=current_stats)
 			self.scan_store.update_progress(scan_id, 75, "Header Analyzer", "in-progress")
+			time.sleep(8)
 			if time.monotonic() > deadline:
 				self._mark_timeout(
 					scan_id,
@@ -350,6 +361,7 @@ class ScanController:
 				current_modules[4]["status"] = "completed"
 				self.scan_store.update_scan_progress(scan_id, modules=current_modules, stats=current_stats)
 			self.scan_store.update_progress(scan_id, 90, "Input Validation Scanner", "in-progress")
+			time.sleep(8)
 			if time.monotonic() > deadline:
 				self._mark_timeout(
 					scan_id,

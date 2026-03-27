@@ -20,6 +20,7 @@
     return 'badge-info';
   }
 
+  // Uses device-local time via toLocaleString() — NOT UTC. No changes needed.
   function formatDate(iso) {
     try {
       return new Date(iso).toLocaleString();
@@ -36,10 +37,22 @@
 
   async function apiFetch(path, opts = {}) {
     const response = await fetch(path, opts);
+    const isJson = response.headers.get('content-type')?.includes('application/json');
+
     if (!response.ok) {
-      throw new Error(`API error: ${response.status}`);
+      let apiMessage = '';
+      if (isJson) {
+        try {
+          const payload = await response.json();
+          apiMessage = payload?.error || payload?.message || '';
+        } catch {
+          apiMessage = '';
+        }
+      }
+      throw new Error(apiMessage || `API error: ${response.status}`);
     }
-    if (response.headers.get('content-type')?.includes('application/json')) {
+
+    if (isJson) {
       return await response.json();
     }
     return response;
@@ -90,6 +103,8 @@
     const btnSpinner = document.getElementById('btn-spinner');
     const errorMsg = document.getElementById('error-msg');
     const recentTbody = document.getElementById('recent-tbody');
+    let loadingTextTimeout = null;
+    let loadingCycle = 0;
 
     function showError(msg) {
       errorMsg.textContent = msg;
@@ -101,11 +116,25 @@
     }
 
     function setLoading(loading) {
+      if (loadingTextTimeout !== null) {
+        clearTimeout(loadingTextTimeout);
+        loadingTextTimeout = null;
+      }
+
       startBtn.disabled = loading;
       if (loading) {
-        btnText.textContent = 'Scanning…';
+        loadingCycle += 1;
+        const cycleToken = loadingCycle;
+        btnText.textContent = 'Initializing...';
+        loadingTextTimeout = setTimeout(() => {
+          if (startBtn.disabled && cycleToken === loadingCycle) {
+            btnText.textContent = 'Scanning…';
+          }
+          loadingTextTimeout = null;
+        }, 800);
         btnSpinner.classList.remove('hidden');
       } else {
+        loadingCycle += 1;
         btnText.textContent = 'Start Scan';
         btnSpinner.classList.add('hidden');
       }
@@ -149,7 +178,7 @@
       hideError();
 
       const url = urlInput.value.trim();
-      const scanType = document.querySelector('input[name="scan_type"]:checked')?.value || 'full';
+      const scanType = 'full';
 
       if (!url) {
         showError('Please enter a valid URL');
@@ -162,7 +191,11 @@
         const data = await apiFetch('/api/scan', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ url, scan_type: scanType })
+          body: JSON.stringify({
+            url,
+            scan_type: scanType,
+            client_timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
+          })
         });
 
         if (data && data.scan_id) {
@@ -197,6 +230,49 @@
   // Progress Page (scan_progress.html)
   // ============================================================================
 
+  const _countUpPrev = new WeakMap();
+  const _countUpCurrent = new WeakMap();
+  const _countUpRaf = new WeakMap();
+
+  function countUp(el, newVal, duration) {
+    if (!el) return;
+
+    const target = Number(newVal || 0);
+    const activeRaf = _countUpRaf.get(el);
+    if (activeRaf) {
+      cancelAnimationFrame(activeRaf);
+    }
+
+    const displayed = Number(el.textContent);
+    const seededPrev = Number.isFinite(displayed)
+      ? displayed
+      : Number(_countUpCurrent.get(el) ?? _countUpPrev.get(el) ?? 0);
+    const prevVal = seededPrev;
+    const totalDuration = Math.max(1, Number(duration || 400));
+    const startTs = performance.now();
+
+    function step(nowTs) {
+      const elapsed = nowTs - startTs;
+      const progress = Math.min(1, elapsed / totalDuration);
+      const currentVal = Math.round(prevVal + (target - prevVal) * progress);
+      el.textContent = String(currentVal);
+      _countUpCurrent.set(el, currentVal);
+
+      if (progress < 1) {
+        const nextRaf = requestAnimationFrame(step);
+        _countUpRaf.set(el, nextRaf);
+        return;
+      }
+
+      _countUpPrev.set(el, target);
+      _countUpCurrent.set(el, target);
+      _countUpRaf.delete(el);
+    }
+
+    const rafId = requestAnimationFrame(step);
+    _countUpRaf.set(el, rafId);
+  }
+
   function initProgress() {
     const scanIdMeta = document.querySelector('meta[name="scan-id"]');
     if (!scanIdMeta) return;
@@ -227,7 +303,8 @@
 
       const ts = document.createElement('span');
       ts.className = 'log-timestamp';
-      ts.textContent = `[${entry.timestamp || '--:--:--'}]`;
+      const timestampLabel = String(entry.timestamp || '--:--:-- UTC');
+      ts.textContent = `[${timestampLabel}]`;
 
       const icon = document.createElement('span');
       icon.className = 'log-icon';
@@ -272,9 +349,9 @@
       const vulns = Number(stats?.vulnerabilities_found || 0);
       const elapsed = Number(stats?.elapsed_seconds || 0);
 
-      statRequests.textContent = String(requests);
-      statPayloads.textContent = String(payloads);
-      statVulns.textContent = String(vulns);
+      countUp(statRequests, requests, 400);
+      countUp(statPayloads, payloads, 400);
+      countUp(statVulns, vulns, 400);
 
       const minutes = Math.floor(elapsed / 60);
       const seconds = elapsed % 60;
@@ -330,7 +407,7 @@
           const data = JSON.parse(e.data);
           showToast(`⚠️ ${data.severity}: ${data.detail || data.message}`, 'finding');
           const current = Number(statVulns.textContent || '0');
-          statVulns.textContent = String(current + 1);
+          countUp(statVulns, current + 1, 400);
         } catch (error) {
           console.error('Failed to parse finding event:', error);
         }
@@ -400,8 +477,103 @@
     const countLow = document.getElementById('count-low');
     const countInfo = document.getElementById('count-info');
     const findingsTbody = document.getElementById('findings-tbody');
+    const summaryUrl = document.getElementById('summary-url');
+    const summaryDate = document.getElementById('summary-date');
+    const summaryDuration = document.getElementById('summary-duration');
+    const summaryTotal = document.getElementById('summary-total');
+    const summaryBand = document.getElementById('summary-band');
+    const summaryScoreValue = document.getElementById('summary-score-value');
+    const narrativeEl = document.getElementById('scan-narrative');
 
     const circumference = 2 * Math.PI * 50; // radius 50
+    const VULN_DESCRIPTIONS = {
+      'SQL Injection': 'Attacker injects SQL code into input fields to manipulate the database.',
+      'XSS': 'Cross-Site Scripting: malicious scripts injected into pages viewed by other users.',
+      'Missing Security Header': 'HTTP response header that protects against common browser-based attacks is absent.',
+      'Security Header': 'HTTP security header status check.',
+      'Input Validation': 'Input fields lack proper server-side validation, allowing unexpected data.'
+    };
+
+    function scoreBand(score) {
+      if (score >= 70) {
+        return { label: 'Secure', cssClass: 'score-band-secure' };
+      }
+      if (score >= 40) {
+        return { label: 'Moderate Risk', cssClass: 'score-band-moderate' };
+      }
+      return { label: 'High Risk', cssClass: 'score-band-high-risk' };
+    }
+
+    function formatDuration(secondsRaw) {
+      const seconds = Number(secondsRaw || 0);
+      if (seconds >= 60) {
+        const minutes = Math.floor(seconds / 60);
+        const remaining = seconds % 60;
+        return `${minutes}m ${remaining}s`;
+      }
+      return `${seconds}s`;
+    }
+
+    function renderDonut(summary) {
+      const donut = document.getElementById('donut-chart');
+      if (!donut) return;
+
+      const high = Number(summary.HIGH || 0);
+      const medium = Number(summary.MEDIUM || 0);
+      const low = Number(summary.LOW || 0);
+      const info = Number(summary.INFO || 0);
+      const total = high + medium + low + info;
+
+      if (total === 0) {
+        donut.style.background = '#374151';
+        return;
+      }
+
+      const h = (high / total) * 100;
+      const hm = h + (medium / total) * 100;
+      const hml = hm + (low / total) * 100;
+      donut.style.background = `conic-gradient(#EF4444 0% ${h}%, #F97316 ${h}% ${hm}%, #EAB308 ${hm}% ${hml}%, #3B82F6 ${hml}% 100%)`;
+    }
+
+    function renderModuleBars(findings) {
+      const moduleTypeMap = {
+        sql: ['sql_injection'],
+        xss: ['xss'],
+        headers: ['missing_header', 'header_status', 'clickjacking', 'cookie_security'],
+        input: ['input_validation']
+      };
+
+      const counts = {
+        sql: 0,
+        xss: 0,
+        headers: 0,
+        input: 0
+      };
+
+      for (const finding of findings || []) {
+        const findingType = String(finding.raw_type || finding.type || '').trim().toLowerCase();
+        for (const moduleId of Object.keys(moduleTypeMap)) {
+          if (moduleTypeMap[moduleId].includes(findingType)) {
+            counts[moduleId] += 1;
+            break;
+          }
+        }
+      }
+
+      const maxCount = Math.max(...Object.values(counts), 1);
+      for (const moduleId of Object.keys(counts)) {
+        const count = counts[moduleId];
+        const countEl = document.getElementById(`bar-count-${moduleId}`);
+        const barEl = document.getElementById(`bar-${moduleId}`);
+        if (countEl) countEl.textContent = String(count);
+        if (barEl) {
+          barEl.style.width = '0%';
+          requestAnimationFrame(() => {
+            barEl.style.width = `${(count / maxCount) * 100}%`;
+          });
+        }
+      }
+    }
 
     function renderGauge(score) {
       const dashoffset = circumference * (1 - score / 100);
@@ -467,7 +639,18 @@
         // Type cell
         const typeCell = document.createElement('td');
         typeCell.className = 'px-4 py-3 text-sm';
-        typeCell.textContent = type;
+        const typeText = document.createElement('span');
+        typeText.textContent = type;
+        typeCell.appendChild(typeText);
+
+        const tooltipSpan = document.createElement('span');
+        tooltipSpan.className = 'tooltip-anchor';
+        tooltipSpan.textContent = 'ℹ️';
+        const tooltipBox = document.createElement('span');
+        tooltipBox.className = 'tooltip-box';
+        tooltipBox.innerHTML = VULN_DESCRIPTIONS[type] || (`Vulnerability class: ${type}`);
+        tooltipSpan.appendChild(tooltipBox);
+        typeCell.appendChild(tooltipSpan);
         row.appendChild(typeCell);
 
         // Parameter cell
@@ -531,13 +714,50 @@
       const findings = data.findings || [];
       const url = String(data.url || 'Unknown');
       const completedAt = String(data.completed_at || '');
+      const durationSeconds = Number(data.duration_seconds || 0);
+
+      const payloadsTested = Number(data.stats?.payloads_tested ?? findings.length ?? 0);
+      const requestsSent = Number(data.stats?.requests_sent ?? 0);
+      const modulesCount = 4;
+      const durationStr = formatDuration(durationSeconds);
+      const total = Number(summary.total ?? 0);
+      const high = Number(summary.HIGH ?? summary.high ?? 0);
+      const medium = Number(summary.MEDIUM ?? summary.medium ?? 0);
+      const low = Number(summary.LOW ?? summary.low ?? 0);
+      const info = Number(summary.INFO ?? summary.info ?? 0);
+      let bandEmoji = '🚨';
+      if (score >= 70) {
+        bandEmoji = '✅';
+      } else if (score >= 40) {
+        bandEmoji = '⚠️';
+      }
 
       renderGauge(score);
       renderSummaryCards(summary);
+      renderDonut(summary);
+      renderModuleBars(findings);
       renderFindings(findings);
+
+      const band = scoreBand(score);
 
       if (resultUrl) resultUrl.textContent = `Target URL: ${truncate(url, 60)}`;
       if (resultDate) resultDate.textContent = `Completed: ${formatDate(completedAt)}`;
+      if (summaryUrl) summaryUrl.textContent = truncate(url, 70);
+      if (summaryDate) summaryDate.textContent = formatDate(completedAt);
+      if (summaryDuration) summaryDuration.textContent = formatDuration(durationSeconds);
+      if (summaryTotal) summaryTotal.textContent = String(summary.total ?? 0);
+      if (summaryBand) {
+        summaryBand.textContent = band.label;
+        summaryBand.className = `score-band ${scoreColor(score)} ${band.cssClass}`;
+      }
+      if (summaryScoreValue) {
+        summaryScoreValue.textContent = String(Math.round(score));
+        summaryScoreValue.className = `font-semibold ${scoreColor(score)}`;
+      }
+      if (narrativeEl) {
+        narrativeEl.innerHTML = `We scanned <strong>${url}</strong> and tested <strong>${payloadsTested}</strong> payloads across <strong>${modulesCount}</strong> security modules in <strong>${durationStr}</strong>. We sent <strong>${requestsSent}</strong> requests to analyze your website's security posture. We found <strong>${total}</strong> vulnerabilities: <strong>${high}</strong> High Risk, <strong>${medium}</strong> Medium Risk, <strong>${low}</strong> Low Risk, and <strong>${info}</strong> Informational finding(s). Your security score is <strong>${Math.round(score)}/100</strong> — <strong>${band.label}</strong> ${bandEmoji}.`;
+        narrativeEl.classList.remove('hidden');
+      }
     }
 
     function showError(message = '⚠️ Error loading results. Please try scanning again.') {

@@ -140,6 +140,7 @@ class HeaderScanner:
 					}
 				)
 
+
 		if not findings:
 			findings.append(
 				{

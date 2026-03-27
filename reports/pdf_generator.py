@@ -1,10 +1,19 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from io import BytesIO
+from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.styles import getSampleStyleSheet
-from reportlab.platypus import HRFlowable, Paragraph, SimpleDocTemplate, Spacer, Table, TableStyle
+from reportlab.platypus import (
+	HRFlowable,
+	PageBreak,
+	Paragraph,
+	SimpleDocTemplate,
+	Spacer,
+	Table,
+	TableStyle,
+)
 
 
 class PDFGenerator:
@@ -15,7 +24,7 @@ class PDFGenerator:
 		"INFO": colors.HexColor("#4A90D9"),
 	}
 
-	def generate_pdf(self, scan_result: dict) -> bytes:
+	def generate_pdf(self, scan_result: dict, client_timezone: str | None = None) -> bytes:
 		buffer = BytesIO()
 		doc = SimpleDocTemplate(
 			buffer,
@@ -26,64 +35,33 @@ class PDFGenerator:
 			bottomMargin=54,
 		)
 		styles = getSampleStyleSheet()
-		story = []
-
-		story.append(Paragraph("VulnGuard Security Report", styles["Title"]))
-		story.append(Paragraph("Shielded Assessment and Web Security Analysis", styles["BodyText"]))
-		story.append(Spacer(1, 8))
-		story.append(HRFlowable(width="100%", thickness=1, color=colors.grey))
-		story.append(Spacer(1, 12))
+		tz = self._resolve_tz(client_timezone)
 
 		started_at = scan_result.get("started_at")
 		completed_at = scan_result.get("completed_at")
-		duration_seconds = scan_result.get("duration_seconds")
-		if duration_seconds is not None:
-			duration_seconds = int(duration_seconds)
-			minutes, seconds = divmod(max(0, duration_seconds), 60)
-			hours, minutes = divmod(minutes, 60)
-			if hours > 0:
-				duration_text = f"{hours}h {minutes}m {seconds}s"
-			elif minutes > 0:
-				duration_text = f"{minutes}m {seconds}s"
-			else:
-				duration_text = f"{seconds}s"
-			duration_display = f"{duration_text} ({duration_seconds}s)"
-		else:
-			duration_text = self._format_duration(started_at, completed_at)
-			duration_display = duration_text
-
-		metadata_rows = [
-			["Target URL", str(scan_result.get("url", "N/A"))],
-			["Scan Type", str(scan_result.get("scan_type", "N/A"))],
-			["Started At", str(started_at or "N/A")],
-			["Completed At", str(completed_at or "N/A")],
-			["Duration", duration_display],
-			["Duration (s)", str(duration_seconds if duration_seconds is not None else "N/A")],
-		]
-		metadata_table = Table(metadata_rows, colWidths=[120, 390])
-		metadata_table.setStyle(
-			TableStyle(
-				[
-					("BACKGROUND", (0, 0), (0, -1), colors.whitesmoke),
-					("FONTNAME", (0, 0), (0, -1), "Helvetica-Bold"),
-					("GRID", (0, 0), (-1, -1), 0.5, colors.lightgrey),
-					("VALIGN", (0, 0), (-1, -1), "TOP"),
-				]
-			)
-		)
-		story.append(metadata_table)
-		story.append(Spacer(1, 16))
-
 		raw_score = scan_result.get("score", 0)
 		try:
 			score = int(raw_score) if raw_score is not None else 0
 		except (TypeError, ValueError):
 			score = 0
 		score_band = self._score_band(score)
-		story.append(Paragraph(f"Overall Security Score: <b>{score}</b> ({score_band})", styles["Heading2"]))
-		story.append(Spacer(1, 12))
+		score_band_to_severity = {
+			"Critical": "HIGH",
+			"Needs Improvement": "MEDIUM",
+			"Good": "LOW",
+		}
+		score_badge_color = self.SEVERITY_COLORS.get(
+			score_band_to_severity.get(score_band, "INFO"),
+			self.SEVERITY_COLORS["INFO"],
+		)
+		score_badge_hex = "#{:02X}{:02X}{:02X}".format(
+			int(score_badge_color.red * 255),
+			int(score_badge_color.green * 255),
+			int(score_badge_color.blue * 255),
+		)
 
 		summary = scan_result.get("summary", {})
+		findings = scan_result.get("findings", [])
 		summary_rows = [["Severity", "Count"]]
 		for severity in ["HIGH", "MEDIUM", "LOW", "INFO", "total"]:
 			label = severity.upper() if severity != "total" else "TOTAL"
@@ -111,12 +89,94 @@ class PDFGenerator:
 			]
 		)
 		summary_table.setStyle(TableStyle(summary_style))
-		story.append(Paragraph("Executive Summary", styles["Heading3"]))
-		story.append(summary_table)
-		story.append(Spacer(1, 16))
 
-		story.append(Paragraph("Detailed Findings", styles["Heading3"]))
-		findings = scan_result.get("findings", [])
+		generated_at = datetime.utcnow().isoformat()
+
+		story = []
+
+		# Page 1 - Cover
+		story.append(Paragraph("VulnGuard", styles["Title"]))
+		story.append(Paragraph("Security Assessment Report", styles["Heading2"]))
+		story.append(Spacer(1, 8))
+		story.append(HRFlowable(width="100%", thickness=1, color=colors.grey))
+		story.append(Spacer(1, 12))
+		story.append(Paragraph(f"Target URL: {str(scan_result.get('url', 'N/A'))}", styles["BodyText"]))
+		story.append(
+			Paragraph(
+				f"Scan Date: {self._format_ts(started_at, tz)}",
+				styles["BodyText"],
+			)
+		)
+		story.append(Spacer(1, 14))
+
+		score_badge = Table([[f"Security Score: {score}"]], colWidths=[180])
+		score_badge.setStyle(
+			TableStyle(
+				[
+					("BACKGROUND", (0, 0), (-1, -1), score_badge_color),
+					("TEXTCOLOR", (0, 0), (-1, -1), colors.white),
+					("ALIGN", (0, 0), (-1, -1), "CENTER"),
+					("FONTNAME", (0, 0), (-1, -1), "Helvetica-Bold"),
+					("FONTSIZE", (0, 0), (-1, -1), 14),
+					("TOPPADDING", (0, 0), (-1, -1), 8),
+					("BOTTOMPADDING", (0, 0), (-1, -1), 8),
+				]
+			)
+		)
+		story.append(score_badge)
+
+		scanned_url = str(scan_result.get("url", "N/A"))
+		duration_str = self._format_duration(started_at, completed_at)
+		stats = scan_result.get("stats", {}) or {}
+		payloads_tested = stats.get("payloads_tested", len(findings))
+		requests_sent = stats.get("requests_sent", 0)
+		total_findings = summary.get("total", 0) or summary.get("TOTAL", 0)
+		high_count = summary.get("HIGH", 0) or summary.get("high", 0)
+		medium_count = summary.get("MEDIUM", 0) or summary.get("medium", 0)
+		low_count = summary.get("LOW", 0) or summary.get("low", 0)
+		info_count = summary.get("INFO", 0) or summary.get("info", 0)
+		if score >= 70:
+			band_label = "Secure"
+			band_emoji = "✅"
+		elif score >= 40:
+			band_label = "Moderate Risk"
+			band_emoji = "⚠️"
+		else:
+			band_label = "High Risk"
+			band_emoji = "🚨"
+		narrative_text = (
+			f"We scanned {scanned_url} and tested {payloads_tested} payloads across 4 security modules in {duration_str}. "
+			f"We sent {requests_sent} requests to analyze your website's security posture. "
+			f"We found {total_findings} vulnerabilities: {high_count} High Risk, {medium_count} Medium Risk, {low_count} Low Risk, "
+			f"and {info_count} Informational finding(s). Your security score is {score}/100 — {band_label} {band_emoji}."
+		)
+		story.append(Spacer(1, 14))
+		story.append(Paragraph(narrative_text, styles["BodyText"]))
+		story.append(PageBreak())
+
+		# Page 2 - Executive Summary
+		story.append(Paragraph("Executive Summary", styles["Heading1"]))
+		story.append(Spacer(1, 12))
+		story.append(
+			Paragraph(
+				f"Overall Security Score: {score} / 100 - {score_band}",
+				styles["Heading2"],
+			)
+		)
+		story.append(Spacer(1, 12))
+		story.append(summary_table)
+		story.append(Spacer(1, 10))
+		story.append(
+			Paragraph(
+				f"<b><font color='{score_badge_hex}'>{score_band}</font></b>",
+				styles["BodyText"],
+			)
+		)
+		story.append(PageBreak())
+
+		# Page 3 - Detailed Findings
+		story.append(Paragraph("Detailed Findings", styles["Heading1"]))
+		story.append(Spacer(1, 16))
 		if not findings:
 			story.append(Paragraph("No findings recorded.", styles["BodyText"]))
 		else:
@@ -175,7 +235,41 @@ class PDFGenerator:
 				story.append(finding_table)
 				story.append(Spacer(1, 10))
 
-		generated_at = datetime.utcnow().isoformat()
+		story.append(PageBreak())
+
+		# Page 4 - Disclaimer / Footer
+		story.append(Paragraph("Disclaimer", styles["Heading2"]))
+		story.append(Spacer(1, 10))
+		story.append(
+			Paragraph(
+				"This report was generated automatically by VulnGuard. The findings represent "
+				"the state of the target at the time of scanning and may not reflect all "
+				"vulnerabilities present. This report is intended for authorised personnel only.",
+				styles["BodyText"],
+			)
+		)
+		story.append(Spacer(1, 14))
+
+		disclaimer_metadata_rows = [
+			["Generated At", self._format_ts(generated_at, tz)],
+			["Scan ID", str(scan_result.get("scan_id", "N/A"))],
+			["Target URL", str(scan_result.get("url", "N/A"))],
+			["Scan Type", str(scan_result.get("scan_type", "N/A"))],
+			["Started At", self._format_ts(started_at, tz)],
+			["Completed At", self._format_ts(completed_at, tz)],
+		]
+		disclaimer_metadata_table = Table(disclaimer_metadata_rows, colWidths=[120, 390])
+		disclaimer_metadata_table.setStyle(
+			TableStyle(
+				[
+					("BACKGROUND", (0, 0), (0, -1), colors.whitesmoke),
+					("FONTNAME", (0, 0), (0, -1), "Helvetica-Bold"),
+					("GRID", (0, 0), (-1, -1), 0.5, colors.lightgrey),
+					("VALIGN", (0, 0), (-1, -1), "TOP"),
+				]
+			)
+		)
+		story.append(disclaimer_metadata_table)
 
 		def _draw_footer(canvas, _doc):
 			canvas.saveState()
@@ -184,7 +278,18 @@ class PDFGenerator:
 			canvas.drawRightString(A4[0] - 36, 24, f"Page {canvas.getPageNumber()}")
 			canvas.restoreState()
 
-		doc.build(story, onFirstPage=_draw_footer, onLaterPages=_draw_footer)
+		def _draw_cover_page(canvas, _doc):
+			canvas.saveState()
+			canvas.translate(A4[0] / 2, A4[1] / 2)
+			canvas.rotate(45)
+			canvas.setFont("Helvetica-Bold", 72)
+			canvas.setFillAlpha(0.08)
+			canvas.setFillColorRGB(0.5, 0.5, 0.5)
+			canvas.drawCentredString(0, 0, "CONFIDENTIAL")
+			canvas.restoreState()
+			_draw_footer(canvas, _doc)
+
+		doc.build(story, onFirstPage=_draw_cover_page, onLaterPages=_draw_footer)
 		return buffer.getvalue()
 
 	def _score_band(self, score: int) -> str:
@@ -202,6 +307,44 @@ class PDFGenerator:
 			return datetime.fromisoformat(normalized)
 		except ValueError:
 			return None
+
+	def _resolve_tz(self, tz_name):
+		if not tz_name:
+			return timezone.utc
+		try:
+			return ZoneInfo(str(tz_name))
+		except ZoneInfoNotFoundError:
+			return timezone.utc
+
+	def _format_ts(self, iso_str, tz) -> str:
+		if iso_str is None:
+			return "N/A"
+
+		# Support epoch timestamps provided as numbers or numeric strings.
+		epoch_value = None
+		if isinstance(iso_str, (int, float)):
+			epoch_value = float(iso_str)
+		elif isinstance(iso_str, str):
+			value = iso_str.strip()
+			if value:
+				try:
+					epoch_value = float(value)
+				except ValueError:
+					epoch_value = None
+
+		if epoch_value is not None:
+			try:
+				dt = datetime.fromtimestamp(epoch_value, tz=tz)
+				return dt.strftime("%Y-%m-%d %H:%M:%S %Z")
+			except (OverflowError, OSError, ValueError):
+				return "N/A"
+
+		dt = self._parse_timestamp(iso_str)
+		if not dt:
+			return "N/A"
+		if dt.tzinfo is None:
+			dt = dt.replace(tzinfo=timezone.utc)
+		return dt.astimezone(tz).strftime("%Y-%m-%d %H:%M:%S %Z")
 
 	def _format_duration(self, started_at: str | None, completed_at: str | None) -> str:
 		start_dt = self._parse_timestamp(started_at)

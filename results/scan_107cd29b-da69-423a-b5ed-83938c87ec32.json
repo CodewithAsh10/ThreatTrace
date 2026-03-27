@@ -1,94 +1,95 @@
 {
-  "scan_id": "eb5e9204-ece0-436e-918e-0f1b6a6399d7",
+  "scan_id": "107cd29b-da69-423a-b5ed-83938c87ec32",
   "url": "https://rig-craft.vercel.app/",
-  "scan_type": "quick",
+  "scan_type": "full",
+  "client_timezone": "Asia/Calcutta",
   "status": "completed",
-  "started_at": "2026-03-26T12:33:45.496570",
-  "completed_at": "2026-03-26T12:33:46.861895",
+  "started_at": "2026-03-26T21:53:32.721679",
+  "completed_at": "2026-03-26T21:54:16.548989",
   "progress": 100,
   "current_module": "Completed",
   "results": null,
-  "score": 55,
+  "score": 60,
   "progress_log": [
     {
-      "timestamp": "12:33:46",
+      "timestamp": "21:54:00",
       "icon": "\u26a0\ufe0f",
       "message": "\ud83d\udee1\ufe0f Missing: Content-Security-Policy"
     },
     {
-      "timestamp": "12:33:46",
+      "timestamp": "21:54:00",
       "icon": "\u26a0\ufe0f",
       "message": "\ud83d\udee1\ufe0f Missing: X-Content-Type-Options"
     },
     {
-      "timestamp": "12:33:46",
+      "timestamp": "21:54:00",
       "icon": "\u26a0\ufe0f",
       "message": "\ud83d\udee1\ufe0f Missing: X-Frame-Options"
     },
     {
-      "timestamp": "12:33:46",
+      "timestamp": "21:54:00",
       "icon": "\u2705",
       "message": "\u2705 Strict-Transport-Security OK"
     },
     {
-      "timestamp": "12:33:46",
+      "timestamp": "21:54:00",
       "icon": "\u26a0\ufe0f",
       "message": "\ud83d\udee1\ufe0f Missing: X-XSS-Protection"
     },
     {
-      "timestamp": "12:33:46",
+      "timestamp": "21:54:00",
       "icon": "\u26a0\ufe0f",
       "message": "\ud83d\udee1\ufe0f Missing: Referrer-Policy"
     },
     {
-      "timestamp": "12:33:46",
+      "timestamp": "21:54:00",
       "icon": "\u26a0\ufe0f",
       "message": "\ud83d\udee1\ufe0f Missing: Permissions-Policy"
     },
     {
-      "timestamp": "12:33:46",
+      "timestamp": "21:54:00",
       "icon": "\u2705",
       "message": "\u2705 Cache-Control OK"
     }
   ],
   "pending_findings": [
     {
-      "timestamp": "12:33:46",
+      "timestamp": "21:54:00",
       "module": "Security Headers",
       "severity": "MEDIUM",
       "detail": "Missing header: Content-Security-Policy",
       "message": "\ud83d\udee1\ufe0f Missing: Content-Security-Policy"
     },
     {
-      "timestamp": "12:33:46",
+      "timestamp": "21:54:00",
       "module": "Security Headers",
       "severity": "MEDIUM",
       "detail": "Missing header: X-Content-Type-Options",
       "message": "\ud83d\udee1\ufe0f Missing: X-Content-Type-Options"
     },
     {
-      "timestamp": "12:33:46",
+      "timestamp": "21:54:00",
       "module": "Security Headers",
       "severity": "MEDIUM",
       "detail": "Missing header: X-Frame-Options",
       "message": "\ud83d\udee1\ufe0f Missing: X-Frame-Options"
     },
     {
-      "timestamp": "12:33:46",
+      "timestamp": "21:54:00",
       "module": "Security Headers",
       "severity": "MEDIUM",
       "detail": "Missing header: X-XSS-Protection",
       "message": "\ud83d\udee1\ufe0f Missing: X-XSS-Protection"
     },
     {
-      "timestamp": "12:33:46",
+      "timestamp": "21:54:00",
       "module": "Security Headers",
       "severity": "MEDIUM",
       "detail": "Missing header: Referrer-Policy",
       "message": "\ud83d\udee1\ufe0f Missing: Referrer-Policy"
     },
     {
-      "timestamp": "12:33:46",
+      "timestamp": "21:54:00",
       "module": "Security Headers",
       "severity": "MEDIUM",
       "detail": "Missing header: Permissions-Policy",
@@ -131,9 +132,9 @@
     "requests_sent": 0,
     "payloads_tested": 0,
     "vulnerabilities_found": 6,
-    "elapsed_seconds": 1
+    "elapsed_seconds": 27
   },
-  "duration_seconds": 1,
+  "duration_seconds": 43,
   "summary": {
     "HIGH": 0,
     "MEDIUM": 1,

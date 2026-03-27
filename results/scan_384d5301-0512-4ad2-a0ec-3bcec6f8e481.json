@@ -1,73 +1,81 @@
 {
-  "scan_id": "a460e238-6f7c-4e12-adcf-a947ccb1f9ae",
-  "url": "https://www.chess.com/",
+  "scan_id": "384d5301-0512-4ad2-a0ec-3bcec6f8e481",
+  "url": "https://www.hackthebox.com/",
   "scan_type": "full",
+  "client_timezone": "Asia/Calcutta",
   "status": "completed",
-  "started_at": "2026-03-26T12:31:03.844173",
-  "completed_at": "2026-03-26T12:31:05.272721",
+  "started_at": "2026-03-26T22:02:34.789530",
+  "completed_at": "2026-03-26T22:03:18.931478",
   "progress": 100,
   "current_module": "Completed",
   "results": null,
-  "score": 77,
+  "score": 80,
   "progress_log": [
     {
-      "timestamp": "12:31:05",
+      "timestamp": "22:03:02",
       "icon": "\u2705",
       "message": "\u2705 Content-Security-Policy OK"
     },
     {
-      "timestamp": "12:31:05",
-      "icon": "\u2705",
-      "message": "\u2705 X-Content-Type-Options OK"
+      "timestamp": "22:03:02",
+      "icon": "\u26a0\ufe0f",
+      "message": "\ud83d\udee1\ufe0f Missing: X-Content-Type-Options"
     },
     {
-      "timestamp": "12:31:05",
-      "icon": "\u2705",
-      "message": "\u2705 X-Frame-Options OK"
+      "timestamp": "22:03:02",
+      "icon": "\u26a0\ufe0f",
+      "message": "\ud83d\udee1\ufe0f Missing: X-Frame-Options"
     },
     {
-      "timestamp": "12:31:05",
+      "timestamp": "22:03:02",
       "icon": "\u2705",
       "message": "\u2705 Strict-Transport-Security OK"
     },
     {
-      "timestamp": "12:31:05",
+      "timestamp": "22:03:02",
       "icon": "\u26a0\ufe0f",
       "message": "\ud83d\udee1\ufe0f Missing: X-XSS-Protection"
     },
     {
-      "timestamp": "12:31:05",
-      "icon": "\u26a0\ufe0f",
-      "message": "\ud83d\udee1\ufe0f Missing: Referrer-Policy"
+      "timestamp": "22:03:02",
+      "icon": "\u2705",
+      "message": "\u2705 Referrer-Policy OK"
     },
     {
-      "timestamp": "12:31:05",
+      "timestamp": "22:03:02",
       "icon": "\u26a0\ufe0f",
       "message": "\ud83d\udee1\ufe0f Missing: Permissions-Policy"
     },
     {
-      "timestamp": "12:31:05",
+      "timestamp": "22:03:02",
       "icon": "\u2705",
       "message": "\u2705 Cache-Control OK"
     }
   ],
   "pending_findings": [
     {
-      "timestamp": "12:31:05",
+      "timestamp": "22:03:02",
+      "module": "Security Headers",
+      "severity": "MEDIUM",
+      "detail": "Missing header: X-Content-Type-Options",
+      "message": "\ud83d\udee1\ufe0f Missing: X-Content-Type-Options"
+    },
+    {
+      "timestamp": "22:03:02",
+      "module": "Security Headers",
+      "severity": "MEDIUM",
+      "detail": "Missing header: X-Frame-Options",
+      "message": "\ud83d\udee1\ufe0f Missing: X-Frame-Options"
+    },
+    {
+      "timestamp": "22:03:02",
       "module": "Security Headers",
       "severity": "MEDIUM",
       "detail": "Missing header: X-XSS-Protection",
       "message": "\ud83d\udee1\ufe0f Missing: X-XSS-Protection"
     },
     {
-      "timestamp": "12:31:05",
-      "module": "Security Headers",
-      "severity": "MEDIUM",
-      "detail": "Missing header: Referrer-Policy",
-      "message": "\ud83d\udee1\ufe0f Missing: Referrer-Policy"
-    },
-    {
-      "timestamp": "12:31:05",
+      "timestamp": "22:03:02",
       "module": "Security Headers",
       "severity": "MEDIUM",
       "detail": "Missing header: Permissions-Policy",
@@ -109,18 +117,48 @@
   "stats": {
     "requests_sent": 0,
     "payloads_tested": 0,
-    "vulnerabilities_found": 3,
-    "elapsed_seconds": 1
+    "vulnerabilities_found": 4,
+    "elapsed_seconds": 28
   },
-  "duration_seconds": 1,
+  "duration_seconds": 44,
   "summary": {
     "HIGH": 0,
     "MEDIUM": 0,
-    "LOW": 3,
-    "INFO": 8,
+    "LOW": 4,
+    "INFO": 7,
     "total": 11
   },
   "findings": [
+    {
+      "type": "Missing Security Header",
+      "header": "X-Content-Type-Options",
+      "status": "missing",
+      "risk_description": "Missing X-Content-Type-Options may allow MIME-sniffing attacks.",
+      "actual_value": null,
+      "parameter": "X-Content-Type-Options",
+      "evidence": "Missing X-Content-Type-Options may allow MIME-sniffing attacks.",
+      "url": "https://www.hackthebox.com/",
+      "payload": "N/A",
+      "confidence": "Medium",
+      "severity": "LOW",
+      "mitigation": "Set X-Content-Type-Options to nosniff.",
+      "raw_type": "missing_header"
+    },
+    {
+      "type": "Missing Security Header",
+      "header": "X-Frame-Options",
+      "status": "missing",
+      "risk_description": "Missing X-Frame-Options can expose the site to clickjacking.",
+      "actual_value": null,
+      "parameter": "X-Frame-Options",
+      "evidence": "Missing X-Frame-Options can expose the site to clickjacking.",
+      "url": "https://www.hackthebox.com/",
+      "payload": "N/A",
+      "confidence": "Medium",
+      "severity": "LOW",
+      "mitigation": "Set X-Frame-Options to DENY or SAMEORIGIN; prefer CSP frame-ancestors where possible.",
+      "raw_type": "missing_header"
+    },
     {
       "type": "Missing Security Header",
       "header": "X-XSS-Protection",
@@ -129,26 +167,11 @@
       "actual_value": null,
       "parameter": "X-XSS-Protection",
       "evidence": "Missing X-XSS-Protection may reduce browser-level XSS mitigation.",
-      "url": "https://www.chess.com/",
+      "url": "https://www.hackthebox.com/",
       "payload": "N/A",
       "confidence": "Medium",
       "severity": "LOW",
       "mitigation": "For legacy browser support, set X-XSS-Protection to 1; mode=block. For modern browsers, rely on CSP.",
-      "raw_type": "missing_header"
-    },
-    {
-      "type": "Missing Security Header",
-      "header": "Referrer-Policy",
-      "status": "missing",
-      "risk_description": "Missing Referrer-Policy may leak sensitive URL data to third parties.",
-      "actual_value": null,
-      "parameter": "Referrer-Policy",
-      "evidence": "Missing Referrer-Policy may leak sensitive URL data to third parties.",
-      "url": "https://www.chess.com/",
-      "payload": "N/A",
-      "confidence": "Medium",
-      "severity": "LOW",
-      "mitigation": "Set Referrer-Policy to strict-origin-when-cross-origin.",
       "raw_type": "missing_header"
     },
     {
@@ -159,7 +182,7 @@
       "actual_value": null,
       "parameter": "Permissions-Policy",
       "evidence": "Missing Permissions-Policy may expose browser capabilities unnecessarily.",
-      "url": "https://www.chess.com/",
+      "url": "https://www.hackthebox.com/",
       "payload": "N/A",
       "confidence": "Medium",
       "severity": "LOW",
@@ -173,7 +196,7 @@
       "evidence": "No SQL injection vulnerabilities detected",
       "confidence": "Low",
       "method": "none",
-      "url": "https://www.chess.com/",
+      "url": "https://www.hackthebox.com/",
       "severity": "INFO",
       "mitigation": "No remediation needed. No vulnerabilities were detected for this check.",
       "raw_type": "sql_injection"
@@ -184,7 +207,7 @@
       "payload": "N/A",
       "location": "none",
       "evidence": "No XSS vulnerabilities detected",
-      "url": "https://www.chess.com/",
+      "url": "https://www.hackthebox.com/",
       "confidence": "Medium",
       "severity": "INFO",
       "mitigation": "No remediation needed. No vulnerabilities were detected for this check.",
@@ -195,40 +218,10 @@
       "header": "Content-Security-Policy",
       "status": "present",
       "risk_description": "",
-      "actual_value": "frame-ancestors 'self'",
+      "actual_value": "upgrade-insecure-requests",
       "parameter": "Content-Security-Policy",
       "evidence": "N/A",
-      "url": "https://www.chess.com/",
-      "payload": "N/A",
-      "confidence": "Medium",
-      "severity": "INFO",
-      "mitigation": "Security header is present and appears correctly configured. No remediation needed.",
-      "raw_type": "header_status"
-    },
-    {
-      "type": "Security Header",
-      "header": "X-Content-Type-Options",
-      "status": "present",
-      "risk_description": "",
-      "actual_value": "nosniff",
-      "parameter": "X-Content-Type-Options",
-      "evidence": "N/A",
-      "url": "https://www.chess.com/",
-      "payload": "N/A",
-      "confidence": "Medium",
-      "severity": "INFO",
-      "mitigation": "Security header is present and appears correctly configured. No remediation needed.",
-      "raw_type": "header_status"
-    },
-    {
-      "type": "Security Header",
-      "header": "X-Frame-Options",
-      "status": "present",
-      "risk_description": "",
-      "actual_value": "SAMEORIGIN",
-      "parameter": "X-Frame-Options",
-      "evidence": "N/A",
-      "url": "https://www.chess.com/",
+      "url": "https://www.hackthebox.com/",
       "payload": "N/A",
       "confidence": "Medium",
       "severity": "INFO",
@@ -240,10 +233,25 @@
       "header": "Strict-Transport-Security",
       "status": "present",
       "risk_description": "",
-      "actual_value": "max-age=31536000; includeSubDomains",
+      "actual_value": "max-age=15552000; includeSubDomains",
       "parameter": "Strict-Transport-Security",
       "evidence": "N/A",
-      "url": "https://www.chess.com/",
+      "url": "https://www.hackthebox.com/",
+      "payload": "N/A",
+      "confidence": "Medium",
+      "severity": "INFO",
+      "mitigation": "Security header is present and appears correctly configured. No remediation needed.",
+      "raw_type": "header_status"
+    },
+    {
+      "type": "Security Header",
+      "header": "Referrer-Policy",
+      "status": "present",
+      "risk_description": "",
+      "actual_value": "no-referrer-when-downgrade",
+      "parameter": "Referrer-Policy",
+      "evidence": "N/A",
+      "url": "https://www.hackthebox.com/",
       "payload": "N/A",
       "confidence": "Medium",
       "severity": "INFO",
@@ -255,10 +263,10 @@
       "header": "Cache-Control",
       "status": "present",
       "risk_description": "",
-      "actual_value": "max-age=0, must-revalidate, private",
+      "actual_value": "public, max-age=28800",
       "parameter": "Cache-Control",
       "evidence": "N/A",
-      "url": "https://www.chess.com/",
+      "url": "https://www.hackthebox.com/",
       "payload": "N/A",
       "confidence": "Medium",
       "severity": "INFO",
@@ -267,12 +275,12 @@
     },
     {
       "type": "Input Validation",
-      "form_action": "https://www.chess.com/",
+      "form_action": "https://www.hackthebox.com/",
       "field_name": "N/A",
       "issue": "No form fields found to validate",
       "parameter": "N/A",
       "evidence": "No form fields found to validate",
-      "url": "https://www.chess.com/",
+      "url": "https://www.hackthebox.com/",
       "payload": "N/A",
       "confidence": "Medium",
       "severity": "INFO",

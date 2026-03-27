@@ -56,6 +56,8 @@ class SeverityClassifier:
 		score = 100
 		for finding in findings:
 			severity = self.classify(finding)
+			if severity == "INFO":
+				continue
 			score -= SCORE_DEDUCTIONS.get(severity, 0)
 		return max(0, score)
 

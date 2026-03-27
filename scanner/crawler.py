@@ -23,10 +23,23 @@ class Crawler:
 			soup = BeautifulSoup(response.text, "lxml")
 			forms = self._extract_forms(soup, url)
 			params = self._extract_url_params(url)
+			raw_headers_list = []
+			raw_response_headers = getattr(getattr(response, "raw", None), "headers", None)
+			if raw_response_headers is not None:
+				iteritems = getattr(raw_response_headers, "iteritems", None)
+				if callable(iteritems):
+					for header_name, header_value in iteritems():
+						raw_headers_list.append((str(header_name), str(header_value)))
+				else:
+					items = getattr(raw_response_headers, "items", None)
+					if callable(items):
+						for header_name, header_value in items():
+							raw_headers_list.append((str(header_name), str(header_value)))
 			return {
 				"url": url,
 				"status_code": response.status_code,
 				"headers": dict(response.headers),
+				"raw_headers_list": raw_headers_list,
 				"html": response.text,
 				"forms": forms,
 				"params": params,
@@ -39,6 +52,7 @@ class Crawler:
 				"url": url,
 				"status_code": None,
 				"headers": {},
+				"raw_headers_list": [],
 				"html": "",
 				"forms": [],
 				"params": self._extract_url_params(url),

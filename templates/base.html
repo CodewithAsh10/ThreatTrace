@@ -25,6 +25,7 @@
   </script>
 </head>
 <body class="bg-gray-950 text-gray-100 min-h-screen flex flex-col">
+  <canvas id="matrix-canvas" style="position:fixed;top:0;left:0;width:100%;height:100%;z-index:-1;opacity:0.15;pointer-events:none;"></canvas>
   <nav class="bg-gray-900 border-b border-gray-800 px-6 py-3 flex items-center gap-3">
     <a href="/" class="flex items-center gap-2 text-xl font-bold text-green-400">
       <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
@@ -45,6 +46,7 @@
     VulnGuard — Automated Web Vulnerability Scanner
   </footer>
   <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/matrix.js') }}"></script>
   {% block scripts %}{% endblock %}
   <div id="toast-container" class="fixed top-4 right-4 z-50 flex flex-col gap-2"></div>
 </body>
