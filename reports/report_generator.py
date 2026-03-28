@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 
 from .mitigation_kb import MitigationKB
 from .severity_classifier import SeverityClassifier
@@ -16,6 +16,25 @@ class ReportGenerator:
 	def __init__(self):
 		self.classifier = SeverityClassifier()
 		self.kb = MitigationKB()
+
+	def _utc_now_iso(self) -> str:
+		return datetime.now(timezone.utc).isoformat()
+
+	def _parse_iso_utc(self, value: str | None) -> datetime | None:
+		if not value:
+			return None
+		try:
+			raw = str(value).strip()
+			if not raw:
+				return None
+			if raw.endswith("Z"):
+				raw = f"{raw[:-1]}+00:00"
+			dt = datetime.fromisoformat(raw)
+			if dt.tzinfo is None:
+				dt = dt.replace(tzinfo=timezone.utc)
+			return dt.astimezone(timezone.utc)
+		except (TypeError, ValueError):
+			return None
 
 	def _normalise_finding(self, finding: dict, scan_url: str) -> dict:
 		normalised = dict(finding)
@@ -48,12 +67,14 @@ class ReportGenerator:
 		SEVERITY_ORDER = {"HIGH": 0, "MEDIUM": 1, "LOW": 2, "INFO": 3}
 
 		all_findings = list(sqli_findings) + list(xss_findings) + list(header_findings) + list(input_findings)
-		completed_at = datetime.utcnow().isoformat()
+		completed_at = self._utc_now_iso()
 
 		duration_seconds = 0
 		try:
-			started_dt = datetime.fromisoformat(scan_meta["started_at"])
-			completed_dt = datetime.fromisoformat(completed_at)
+			started_dt = self._parse_iso_utc(scan_meta.get("started_at"))
+			completed_dt = self._parse_iso_utc(completed_at)
+			if started_dt is None or completed_dt is None:
+				raise ValueError("Invalid timestamp")
 			duration_seconds = int((completed_dt - started_dt).total_seconds())
 		except (KeyError, TypeError, ValueError):
 			duration_seconds = 0

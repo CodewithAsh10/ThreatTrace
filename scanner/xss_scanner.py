@@ -38,7 +38,7 @@ class XSSScanner:
 
 		deduped = {}
 		for finding in findings:
-			key = (finding.get("parameter"), finding.get("payload"))
+			key = (finding.get("parameter"), finding.get("location"))
 			deduped[key] = finding
 
 		if not deduped:
@@ -78,6 +78,7 @@ class XSSScanner:
 		for param in params:
 			if self._deadline_exceeded(deadline):
 				break
+			param_confirmed_vulnerable = False
 			for payload in self.payloads:
 				if self._deadline_exceeded(deadline):
 					break
@@ -102,6 +103,7 @@ class XSSScanner:
 					)
 					if finding:
 						findings.append(finding)
+						param_confirmed_vulnerable = True
 						if progress_callback is not None:
 							progress_callback(
 								{
@@ -133,6 +135,9 @@ class XSSScanner:
 					if not self._deadline_exceeded(deadline):
 						time.sleep(RATE_LIMIT_DELAY)
 
+				if param_confirmed_vulnerable:
+					break
+
 		return findings
 
 	def _test_forms(
@@ -162,6 +167,7 @@ class XSSScanner:
 				field_type = (field.get("type") or "text").lower()
 				if not field_name or field_type in {"hidden", "submit"}:
 					continue
+				field_confirmed_vulnerable = False
 
 				for payload in self.payloads:
 					if self._deadline_exceeded(deadline):
@@ -178,6 +184,7 @@ class XSSScanner:
 						)
 						if finding:
 							findings.append(finding)
+							field_confirmed_vulnerable = True
 							if progress_callback is not None:
 								progress_callback(
 									{
@@ -213,6 +220,9 @@ class XSSScanner:
 							)
 						if not self._deadline_exceeded(deadline):
 							time.sleep(RATE_LIMIT_DELAY)
+
+						if field_confirmed_vulnerable:
+							break
 
 		return findings
 

@@ -56,7 +56,11 @@ class SQLInjectionScanner:
 
 		deduped = {}
 		for finding in findings:
-			key = (finding.get("parameter"), finding.get("payload"))
+			key = (
+				finding.get("parameter"),
+				finding.get("location"),
+				finding.get("method"),
+			)
 			deduped[key] = finding
 
 		if not deduped:
@@ -105,6 +109,7 @@ class SQLInjectionScanner:
 		for param in params:
 			if self._deadline_exceeded(deadline):
 				break
+			param_confirmed_vulnerable = False
 			total = len(self.payloads)
 			for i, payload in enumerate(self.payloads):
 				if self._deadline_exceeded(deadline):
@@ -125,9 +130,15 @@ class SQLInjectionScanner:
 
 				try:
 					response = requests.get(modified_url, timeout=REQUEST_TIMEOUT, verify=False)
-					error_finding = self._check_error_based(response, payload, param)
+					error_finding = self._check_error_based(
+						response,
+						payload,
+						param,
+						"url_parameter",
+					)
 					if error_finding:
 						findings.append(error_finding)
+						param_confirmed_vulnerable = True
 						if progress_callback is not None:
 							progress_callback(
 								{
@@ -140,22 +151,29 @@ class SQLInjectionScanner:
 									"log": f"⚠️ FOUND: SQL Injection on param '{param}'",
 								}
 							)
-
-					blind_finding = self._check_blind(baseline_response, response, param, payload)
-					if blind_finding:
-						findings.append(blind_finding)
-						if progress_callback is not None:
-							progress_callback(
-								{
-									"type": "finding",
-									"module": "SQL Injection Scanner",
-									"severity": "HIGH",
-									"request_sent": False,
-									"payload_tested": False,
-									"detail": f"⚠️ Vulnerability found on param '{param}'!",
-									"log": f"⚠️ FOUND: SQL Injection on param '{param}'",
-								}
-							)
+					else:
+						blind_finding = self._check_blind(
+							baseline_response,
+							response,
+							param,
+							payload,
+							"url_parameter",
+						)
+						if blind_finding:
+							findings.append(blind_finding)
+							param_confirmed_vulnerable = True
+							if progress_callback is not None:
+								progress_callback(
+									{
+										"type": "finding",
+										"module": "SQL Injection Scanner",
+										"severity": "HIGH",
+										"request_sent": False,
+										"payload_tested": False,
+										"detail": f"⚠️ Vulnerability found on param '{param}'!",
+										"log": f"⚠️ FOUND: SQL Injection on param '{param}'",
+									}
+								)
 				except requests.exceptions.RequestException as exc:
 					logging.warning("SQLi URL parameter test failed for %s: %s", modified_url, exc)
 				finally:
@@ -174,6 +192,9 @@ class SQLInjectionScanner:
 						)
 					if not self._deadline_exceeded(deadline):
 						time.sleep(RATE_LIMIT_DELAY)
+
+				if param_confirmed_vulnerable:
+					break
 
 		return findings
 
@@ -210,6 +231,7 @@ class SQLInjectionScanner:
 				field_type = (field.get("type") or "text").lower()
 				if not field_name or field_type == "hidden":
 					continue
+				field_confirmed_vulnerable = False
 
 				total = len(self.payloads)
 				for i, payload in enumerate(self.payloads):
@@ -219,9 +241,15 @@ class SQLInjectionScanner:
 					data[field_name] = payload
 					try:
 						response = self._submit_form(action, method, data)
-						error_finding = self._check_error_based(response, payload, field_name)
+						error_finding = self._check_error_based(
+							response,
+							payload,
+							field_name,
+							"form_field",
+						)
 						if error_finding:
 							findings.append(error_finding)
+							field_confirmed_vulnerable = True
 							if progress_callback is not None:
 								progress_callback(
 									{
@@ -234,24 +262,29 @@ class SQLInjectionScanner:
 										"log": f"⚠️ FOUND: SQL Injection on param '{field_name}'",
 									}
 								)
-
-						blind_finding = self._check_blind(
-							baseline_response, response, field_name, payload
-						)
-						if blind_finding:
-							findings.append(blind_finding)
-							if progress_callback is not None:
-								progress_callback(
-									{
-										"type": "finding",
-										"module": "SQL Injection Scanner",
-										"severity": "HIGH",
-										"request_sent": False,
-										"payload_tested": False,
-										"detail": f"⚠️ Vulnerability found on param '{field_name}'!",
-										"log": f"⚠️ FOUND: SQL Injection on param '{field_name}'",
-									}
-								)
+						else:
+							blind_finding = self._check_blind(
+								baseline_response,
+								response,
+								field_name,
+								payload,
+								"form_field",
+							)
+							if blind_finding:
+								findings.append(blind_finding)
+								field_confirmed_vulnerable = True
+								if progress_callback is not None:
+									progress_callback(
+										{
+											"type": "finding",
+											"module": "SQL Injection Scanner",
+											"severity": "HIGH",
+											"request_sent": False,
+											"payload_tested": False,
+											"detail": f"⚠️ Vulnerability found on param '{field_name}'!",
+											"log": f"⚠️ FOUND: SQL Injection on param '{field_name}'",
+										}
+									)
 					except requests.exceptions.RequestException as exc:
 						logging.warning(
 							"SQLi form test failed for %s field %s: %s",
@@ -276,6 +309,9 @@ class SQLInjectionScanner:
 						if not self._deadline_exceeded(deadline):
 							time.sleep(RATE_LIMIT_DELAY)
 
+						if field_confirmed_vulnerable:
+							break
+
 		return findings
 
 	def _submit_form(self, action: str, method: str, data: dict):
@@ -283,7 +319,7 @@ class SQLInjectionScanner:
 			return requests.post(action, data=data, timeout=REQUEST_TIMEOUT, verify=False)
 		return requests.get(action, params=data, timeout=REQUEST_TIMEOUT, verify=False)
 
-	def _check_error_based(self, response, payload: str, param: str) -> dict | None:
+	def _check_error_based(self, response, payload: str, param: str, location: str) -> dict | None:
 		body_lower = response.text.lower()
 		for signature in self.DB_ERRORS:
 			signature_lower = signature.lower()
@@ -294,13 +330,14 @@ class SQLInjectionScanner:
 					"type": "sql_injection",
 					"parameter": param,
 					"payload": payload,
+					"location": location,
 					"evidence": evidence,
 					"confidence": "HIGH",
 					"method": "error-based",
 				}
 		return None
 
-	def _check_blind(self, baseline, response, param: str, payload: str) -> dict | None:
+	def _check_blind(self, baseline, response, param: str, payload: str, location: str) -> dict | None:
 		baseline_time = baseline.elapsed.total_seconds() if baseline and baseline.elapsed else 0
 		response_time = response.elapsed.total_seconds() if response and response.elapsed else 0
 		if response_time - baseline_time > 4:
@@ -308,6 +345,7 @@ class SQLInjectionScanner:
 				"type": "sql_injection",
 				"parameter": param,
 				"payload": payload,
+				"location": location,
 				"evidence": f"Response time increased from {baseline_time:.2f}s to {response_time:.2f}s",
 				"confidence": "HIGH",
 				"method": "time-based blind",
@@ -315,11 +353,19 @@ class SQLInjectionScanner:
 
 		baseline_len = len(baseline.text) if baseline and baseline.text is not None else 0
 		response_len = len(response.text) if response and response.text is not None else 0
-		if baseline_len > 0 and abs(response_len - baseline_len) > (0.2 * baseline_len):
+		length_delta = abs(response_len - baseline_len)
+		if (
+			baseline_len > 0
+			and response_len > 0
+			and response.status_code == baseline.status_code
+			and length_delta >= 80
+			and length_delta > (0.2 * baseline_len)
+		):
 			return {
 				"type": "sql_injection",
 				"parameter": param,
 				"payload": payload,
+				"location": location,
 				"evidence": f"Response length changed from {baseline_len} to {response_len}",
 				"confidence": "MEDIUM",
 				"method": "blind",

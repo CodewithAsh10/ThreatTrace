@@ -20,13 +20,35 @@
     return 'badge-info';
   }
 
-  // Uses device-local time via toLocaleString() — NOT UTC. No changes needed.
+  function parseIsoAsUtc(iso) {
+    const raw = String(iso || '').trim();
+    if (!raw) return null;
+
+    // Legacy scan records store timezone-naive ISO strings; treat them as UTC.
+    const hasZone = /([zZ]|[+-]\d{2}:\d{2})$/.test(raw);
+    const candidate = hasZone ? raw : `${raw}Z`;
+    const parsed = new Date(candidate);
+    if (Number.isNaN(parsed.getTime())) return null;
+    return parsed;
+  }
+
+  // Always render app timestamps in IST for consistency across clients.
   function formatDate(iso) {
-    try {
-      return new Date(iso).toLocaleString();
-    } catch {
+    const parsed = parseIsoAsUtc(iso);
+    if (!parsed) {
       return iso;
     }
+
+    return parsed.toLocaleString('en-IN', {
+      timeZone: 'Asia/Kolkata',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: true
+    }) + ' IST';
   }
 
   function truncate(str, n) {
@@ -321,7 +343,7 @@
 
       const ts = document.createElement('span');
       ts.className = 'log-timestamp';
-      const timestampLabel = String(entry.timestamp || '--:--:-- UTC');
+      const timestampLabel = String(entry.timestamp || '--:--:-- IST');
       ts.textContent = `[${timestampLabel}]`;
 
       const icon = document.createElement('span');

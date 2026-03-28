@@ -20,6 +20,16 @@ class InputValidationScanner:
 		for form in soup.find_all("form"):
 			findings.extend(self._analyse_form(form, url, progress_callback))
 
+		deduped = {}
+		for finding in findings:
+			key = (
+				finding.get("form_action"),
+				finding.get("field_name"),
+				finding.get("issue"),
+			)
+			deduped[key] = finding
+		findings = list(deduped.values())
+
 		if not findings:
 			findings.append(
 				{

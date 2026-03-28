@@ -2,7 +2,7 @@ import logging
 import threading
 import time
 import uuid
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 
 try:
 	from ..config import MAX_SCAN_TIME
@@ -29,9 +29,17 @@ except ImportError:
 
 
 class ScanController:
+	IST_TZ = timezone(timedelta(hours=5, minutes=30), name="IST")
+
 	def __init__(self, scan_store: ScanStore):
 		self.scan_store = scan_store
 		self.report_generator = ReportGenerator()
+
+	def _now_ist_label(self) -> str:
+		return datetime.now(timezone.utc).astimezone(self.IST_TZ).strftime("%H:%M:%S IST")
+
+	def _now_utc_iso(self) -> str:
+		return datetime.now(timezone.utc).isoformat()
 
 	def start_scan(
 		self,
@@ -49,7 +57,7 @@ class ScanController:
 			"scan_type": scan_type,
 			"client_timezone": client_timezone,
 			"status": "queued",
-			"started_at": datetime.utcnow().isoformat(),
+			"started_at": self._now_utc_iso(),
 			"completed_at": None,
 			"progress": 0,
 			"current_module": "Queued",
@@ -139,7 +147,7 @@ class ScanController:
 				current_stats["elapsed_seconds"] = int(time.monotonic() - scan_start_time)
 
 				log_entry = {
-					"timestamp": f"{datetime.utcnow().strftime('%H:%M:%S')} UTC",
+					"timestamp": self._now_ist_label(),
 					"icon": icon,
 					"message": message,
 				}
@@ -147,7 +155,7 @@ class ScanController:
 				finding_event = None
 				if event_type == "finding":
 					finding_event = {
-						"timestamp": f"{datetime.utcnow().strftime('%H:%M:%S')} UTC",
+						"timestamp": self._now_ist_label(),
 						"module": event.get("module", module_name),
 						"severity": event.get("severity", "INFO"),
 						"detail": event.get("detail", ""),
@@ -378,7 +386,7 @@ class ScanController:
 				"scan_id": current_record.get("scan_id", scan_id),
 				"url": current_record.get("url", url),
 				"scan_type": current_record.get("scan_type", scan_type),
-				"started_at": current_record.get("started_at", datetime.utcnow().isoformat()),
+				"started_at": current_record.get("started_at", self._now_utc_iso()),
 			}
 			if len(current_modules) > 5:
 				current_modules[5]["status"] = "running"
@@ -416,7 +424,7 @@ class ScanController:
 			merged_record["status"] = "completed"
 			merged_record["progress"] = 100
 			merged_record["current_module"] = "Completed"
-			merged_record["completed_at"] = datetime.utcnow().isoformat()
+			merged_record["completed_at"] = self._now_utc_iso()
 			self.scan_store.save_scan(scan_id, merged_record)
 		except Exception as exc:
 			logging.exception("Scan %s failed: %s", scan_id, exc)
@@ -424,12 +432,12 @@ class ScanController:
 				"scan_id": scan_id,
 				"url": url,
 				"scan_type": scan_type,
-				"started_at": datetime.utcnow().isoformat(),
+				"started_at": self._now_utc_iso(),
 			}
 			existing_progress = record.get("progress")
 			record["status"] = "failed"
 			record["current_module"] = "Failed"
-			record["completed_at"] = datetime.utcnow().isoformat()
+			record["completed_at"] = self._now_utc_iso()
 			record["progress"] = existing_progress if isinstance(existing_progress, (int, float)) else 0
 			record["results"] = {
 				"sql_injection": sqli_findings,
@@ -478,7 +486,7 @@ class ScanController:
 		record = self.scan_store.get_scan(scan_id) or {"scan_id": scan_id}
 		record["status"] = "timeout"
 		record["current_module"] = module_name
-		record["completed_at"] = datetime.utcnow().isoformat()
+		record["completed_at"] = self._now_utc_iso()
 		record["results"] = {
 			"sql_injection": sqli_findings,
 			"xss": xss_findings,
