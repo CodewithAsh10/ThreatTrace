@@ -20,7 +20,7 @@ class Crawler:
 	def crawl(self, url: str) -> dict:
 		try:
 			response = requests.get(url, timeout=REQUEST_TIMEOUT, verify=False)
-			soup = BeautifulSoup(response.text, "lxml")
+			soup = BeautifulSoup(response.text, "html.parser")
 			forms = self._extract_forms(soup, url)
 			params = self._extract_url_params(url)
 			raw_headers_list = []

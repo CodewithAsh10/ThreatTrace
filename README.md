@@ -81,7 +81,7 @@ vulnguard/
 
 - Backend: Python, Flask
 - Frontend: Jinja2 templates, Tailwind CSS, Vanilla JavaScript
-- Networking and Parsing: Requests, BeautifulSoup4, lxml, urllib3
+- Networking and Parsing: Requests, BeautifulSoup4, urllib3
 - Reporting: ReportLab (PDF)
 - Runtime: Server-Sent Events (SSE), Python threading
 

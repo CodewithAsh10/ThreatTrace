@@ -164,7 +164,10 @@
             <td class="px-4 py-3">${summary.LOW || 0}</td>
             <td class="px-4 py-3 text-xs text-gray-400">${formatDate(scan.started_at)}</td>
             <td class="px-4 py-3"><span class="px-2 py-1 rounded text-xs ${scan.status === 'completed' ? 'bg-green-900 text-green-200' : 'bg-yellow-900 text-yellow-200'}">${scan.status || 'unknown'}</span></td>
-            <td class="px-4 py-3"><a href="/scan/${scan.scan_id}/results" class="text-blue-400 hover:underline">View</a></td>
+            <td class="px-4 py-3 flex items-center gap-3">
+              <a href="/scan/${scan.scan_id}/results" class="text-blue-400 hover:underline">View</a>
+              <button class="delete-scan-btn text-red-400 hover:text-red-300 hover:underline" data-scan-id="${scan.scan_id}" type="button">Delete</button>
+            </td>
           `;
           recentTbody.appendChild(row);
         }
@@ -220,6 +223,21 @@
         showError(`Failed to start scan: ${error.message}`);
       } finally {
         setLoading(false);
+      }
+    });
+
+    recentTbody.addEventListener('click', async (e) => {
+      if (e.target.classList.contains('delete-scan-btn')) {
+        const scanId = e.target.getAttribute('data-scan-id');
+        if (confirm('Are you confirm you want to remove this scan?')) {
+          try {
+            await apiFetch(`/api/scan/${scanId}`, { method: 'DELETE' });
+            showToast('Scan removed from recent list', 'info');
+            loadRecentScans();
+          } catch (error) {
+            showError(`Failed to delete scan: ${error.message}`);
+          }
+        }
       }
     });
 

@@ -195,7 +195,7 @@ class ScanController:
 				current_modules[0]["details"] = f"Found {forms_count} forms, {params_count} params"
 				self.scan_store.update_scan_progress(scan_id, modules=current_modules, stats=current_stats)
 			self.scan_store.update_progress(scan_id, 10, "Crawler", "in-progress")
-			time.sleep(3)
+			time.sleep(1)
 			if time.monotonic() > deadline:
 				self._mark_timeout(
 					scan_id,
@@ -237,7 +237,7 @@ class ScanController:
 				current_modules[1]["status"] = "completed"
 				self.scan_store.update_scan_progress(scan_id, modules=current_modules, stats=current_stats)
 			self.scan_store.update_progress(scan_id, 25, "SQL Injection Scanner", "in-progress")
-			time.sleep(12)
+			time.sleep(2)
 			if time.monotonic() > deadline:
 				self._mark_timeout(
 					scan_id,
@@ -279,7 +279,7 @@ class ScanController:
 				current_modules[2]["status"] = "completed"
 				self.scan_store.update_scan_progress(scan_id, modules=current_modules, stats=current_stats)
 			self.scan_store.update_progress(scan_id, 50, "XSS Scanner", "in-progress")
-			time.sleep(12)
+			time.sleep(2)
 			if time.monotonic() > deadline:
 				self._mark_timeout(
 					scan_id,
@@ -320,7 +320,7 @@ class ScanController:
 				current_modules[3]["status"] = "completed"
 				self.scan_store.update_scan_progress(scan_id, modules=current_modules, stats=current_stats)
 			self.scan_store.update_progress(scan_id, 75, "Header Analyzer", "in-progress")
-			time.sleep(8)
+			time.sleep(1)
 			if time.monotonic() > deadline:
 				self._mark_timeout(
 					scan_id,
@@ -361,7 +361,7 @@ class ScanController:
 				current_modules[4]["status"] = "completed"
 				self.scan_store.update_scan_progress(scan_id, modules=current_modules, stats=current_stats)
 			self.scan_store.update_progress(scan_id, 90, "Input Validation Scanner", "in-progress")
-			time.sleep(8)
+			time.sleep(1)
 			if time.monotonic() > deadline:
 				self._mark_timeout(
 					scan_id,

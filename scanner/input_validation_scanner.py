@@ -15,7 +15,7 @@ class InputValidationScanner:
 		_ = MAX_SCAN_TIME
 
 		html_content = crawl_data.get("html", "")
-		soup = BeautifulSoup(html_content, "lxml")
+		soup = BeautifulSoup(html_content, "html.parser")
 		findings = []
 		for form in soup.find_all("form"):
 			findings.extend(self._analyse_form(form, url, progress_callback))
