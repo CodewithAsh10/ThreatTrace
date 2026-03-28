@@ -92,7 +92,7 @@ def scan_report_pdf(scan_id):
 		BytesIO(pdf_bytes),
 		mimetype="application/pdf",
 		as_attachment=True,
-		download_name=f"vulnguard_report_{scan_id[:8]}.pdf",
+		download_name=f"threattrace_report_{scan_id[:8]}.pdf",
 	)
 
 
@@ -107,7 +107,7 @@ def scan_report_json(scan_id):
 		BytesIO(payload),
 		mimetype="application/json",
 		as_attachment=True,
-		download_name=f"vulnguard_report_{scan_id[:8]}.json",
+		download_name=f"threattrace_report_{scan_id[:8]}.json",
 	)
 
 

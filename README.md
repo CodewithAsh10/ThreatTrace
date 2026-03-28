@@ -1,6 +1,6 @@
-# VulnGuard — Smart Vulnerability Scanner System
+# ThreatTrace — Smart Vulnerability Scanner System
 
-VulnGuard is a web vulnerability scanner built to automate practical security checks for modern web applications. It crawls targets, runs multi-module security analysis, streams live scan progress, and generates remediation-focused reports with severity scoring.
+ThreatTrace is a web vulnerability scanner built to automate practical security checks for modern web applications. It crawls targets, runs multi-module security analysis, streams live scan progress, and generates remediation-focused reports with severity scoring.
 
 ## Tech Stack
 
