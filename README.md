@@ -43,7 +43,7 @@ ThreatTrace is a web vulnerability scanner built to automate practical security 
 ## Project Structure
 
 ```text
-vulnguard/
+ThreatTrace/
 ├── app.py
 ├── config.py
 ├── requirements.txt
