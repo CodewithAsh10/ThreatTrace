@@ -113,6 +113,83 @@
     }, 3000);
   }
 
+  function showConfirmation(title, message, options = {}) {
+    const {
+      icon = 'warning',
+      confirmText = 'Confirm',
+      cancelText = 'Cancel',
+      isDangerous = false
+    } = options;
+
+    return new Promise((resolve) => {
+      const modal = document.getElementById('confirmation-modal');
+      const modalTitle = document.getElementById('modal-title');
+      const modalMessage = document.getElementById('modal-message');
+      const modalIcon = document.getElementById('modal-icon');
+      const modalIconText = document.getElementById('modal-icon-text');
+      const confirmBtn = document.getElementById('modal-confirm-btn');
+      const cancelBtn = document.getElementById('modal-cancel-btn');
+
+      // Set content
+      modalTitle.textContent = title;
+      modalMessage.textContent = message;
+
+      // Set icon
+      const iconMap = {
+        'warning': { text: '⚠️', class: 'warning' },
+        'info': { text: '❓', class: 'info' },
+        'danger': { text: '🗑️', class: 'danger' }
+      };
+      const iconData = iconMap[icon] || iconMap['info'];
+      modalIconText.textContent = iconData.text;
+      modalIcon.className = `modal-icon ${iconData.class}`;
+
+      // Set button styles
+      confirmBtn.textContent = confirmText;
+      cancelBtn.textContent = cancelText;
+      
+      if (isDangerous) {
+        confirmBtn.className = 'modal-btn modal-btn-danger';
+      } else {
+        confirmBtn.className = 'modal-btn modal-btn-confirm';
+      }
+
+      // Show modal
+      modal.classList.add('active');
+
+      // Handle clicks
+      const handleConfirm = () => {
+        cleanup();
+        modal.classList.remove('active');
+        resolve(true);
+      };
+
+      const handleCancel = () => {
+        cleanup();
+        modal.classList.remove('active');
+        resolve(false);
+      };
+
+      const cleanup = () => {
+        confirmBtn.removeEventListener('click', handleConfirm);
+        cancelBtn.removeEventListener('click', handleCancel);
+        document.removeEventListener('keydown', handleKeydown);
+      };
+
+      const handleKeydown = (e) => {
+        if (e.key === 'Enter') handleConfirm();
+        if (e.key === 'Escape') handleCancel();
+      };
+
+      confirmBtn.addEventListener('click', handleConfirm);
+      cancelBtn.addEventListener('click', handleCancel);
+      document.addEventListener('keydown', handleKeydown);
+
+      // Focus confirm button
+      confirmBtn.focus();
+    });
+  }
+
   // ============================================================================
   // Home Page (index.html)
   // ============================================================================
@@ -256,7 +333,17 @@
     recentTbody.addEventListener('click', async (e) => {
       if (e.target.classList.contains('delete-scan-btn')) {
         const scanId = e.target.getAttribute('data-scan-id');
-        if (confirm('Are you confirm you want to remove this scan?')) {
+        const confirmed = await showConfirmation(
+          'Delete Scan',
+          'Are you sure you want to remove this scan? This action cannot be undone.',
+          {
+            icon: 'danger',
+            confirmText: 'Delete',
+            cancelText: 'Cancel',
+            isDangerous: true
+          }
+        );
+        if (confirmed) {
           try {
             await apiFetch(`/api/scan/${scanId}`, { method: 'DELETE' });
             showToast('Scan removed from recent list', 'info');
@@ -980,7 +1067,17 @@
 
     // Make deleteHistoryItem globally available
     window.deleteHistoryItem = async function(scanId) {
-      if (!confirm('Are you sure you want to delete this scan?')) return;
+      const confirmed = await showConfirmation(
+        'Delete Scan',
+        'Are you sure you want to delete this scan? This action cannot be undone.',
+        {
+          icon: 'danger',
+          confirmText: 'Delete',
+          cancelText: 'Cancel',
+          isDangerous: true
+        }
+      );
+      if (!confirmed) return;
       try {
         await apiFetch(`/api/scan/${scanId}`, { method: 'DELETE' });
         allScans = allScans.filter(s => s.scan_id !== scanId);
@@ -988,7 +1085,8 @@
         renderHistory(currentFilteredList);
       } catch (error) {
         console.error('Failed to delete scan:', error);
-        alert(`Failed to delete scan: ${error.message}`);
+        // Use toast instead of alert for consistency
+        showToast(`Failed to delete scan: ${error.message}`, 'info');
       }
     };
   }
