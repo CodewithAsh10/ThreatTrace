@@ -202,12 +202,17 @@
       e.preventDefault();
       hideError();
 
-      const url = urlInput.value.trim();
+      let url = urlInput.value.trim();
       const scanType = 'full';
 
       if (!url) {
         showError('Please enter a valid URL');
         return;
+      }
+
+      // Auto-add https:// if no protocol is provided
+      if (!url.startsWith('http://') && !url.startsWith('https://')) {
+        url = 'https://' + url;
       }
 
       setLoading(true);

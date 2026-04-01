@@ -25,6 +25,9 @@ scan_controller = ScanController(scan_store)
 
 def _is_valid_url(url: str) -> bool:
 	try:
+		# Add https:// if no scheme is provided
+		if not url.startswith(("http://", "https://")):
+			url = "https://" + url
 		parsed = urllib.parse.urlparse(url)
 	except Exception:
 		return False
@@ -37,6 +40,10 @@ def create_scan():
 	url = payload.get("url", "")
 	scan_type = payload.get("scan_type", "full")
 	client_timezone = payload.get("client_timezone")
+
+	# Add https:// if no scheme is provided
+	if not url.startswith(("http://", "https://")):
+		url = "https://" + url
 
 	if not _is_valid_url(url):
 		return jsonify({"error": "Invalid URL"}), 400
