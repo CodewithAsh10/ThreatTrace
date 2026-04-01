@@ -1,12 +1,12 @@
-# VulnGuard Architecture & Workflow
+# ThreatTrace Architecture & Workflow
 
-This document explains the internal workings of the **VulnGuard** application. It details step-by-step what happens when a user submits a website domain for scanning, and how the various major components synchronize to produce a final security report.
+This document explains the internal workings of the **ThreatTrace** application. It details step-by-step what happens when a user submits a website domain for scanning, and how the various major components synchronize to produce a final security report.
 
 ---
 
 ## High-Level Architecture Flow
 
-When a target website domain is added to the application, VulnGuard orchestrates a coordinated effort between the client interface, a Flask web backend, a background scanning engine, and an in-memory or persisted state store.
+When a target website domain is added to the application, ThreatTrace orchestrates a coordinated effort between the client interface, a Flask web backend, a background scanning engine, and an in-memory or persisted state store.
 
 ```mermaid
 flowchart TD
@@ -80,7 +80,7 @@ classDiagram
 5. **Input Validation Scanner**: Validates whether the server properly sanitizes or rejects unexpected data.
 
 ### 4. Real-time Synchronization (Server-Sent Events)
-A core feature of VulnGuard is its ability to stream real-time results back to the user without needing constant page refreshes.
+A core feature of ThreatTrace is its ability to stream real-time results back to the user without needing constant page refreshes.
 
 ```mermaid
 sequenceDiagram
